@@ -16,11 +16,14 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
     int playerX = 300;
     int playerY = 580;
 
+    int startX = 20;
+    int startY = 20;
+
     int playerXSpeed = 0;
     int playerYSpeed = 0;
 
-    int trueX = playerX - 20;
-    int trueY = playerY - 20;
+    int trueX = playerX - startX;
+    int trueY = playerY - startY;
 
     int drawSpeed = 2;
 
@@ -29,6 +32,17 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
 
     int[][] Board;
     boolean moveOff = false;
+
+    boolean isUpPressed = false;
+    boolean isDownPressed = false;
+    boolean isLeftPressed = false;
+    boolean isRightPressed = false;
+
+    ArrayList<Integer> direction = new ArrayList<>(0);
+
+    ArrayList<Integer> slowOrFast = new ArrayList<Integer>(0);
+    boolean isFastPressed = false;
+    boolean isSlowPressed = false;
 
 
     class GameDrawCanvas extends JPanel {
@@ -40,6 +54,7 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
                     RenderingHints.VALUE_ANTIALIAS_ON);
             drawBackGround(g2d);
             drawPlayer(g2d);
+            Toolkit.getDefaultToolkit().sync();
         }
 
         private void drawBackGround (Graphics2D g2d){
@@ -47,10 +62,10 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
             this.setBackground(Color.BLACK);
 
             g2d.setColor(Color.WHITE);
-            g2d.drawLine(20, 20, 730, 20);
-            g2d.drawLine(20, 20, 20, 580);
-            g2d.drawLine(20, 580, 730, 580);
-            g2d.drawLine(730, 20, 730, 580);
+            g2d.drawLine(startX, startY, frameWidth - startX, startX);
+            g2d.drawLine(startX, startY, startX, frameHeight - startY);
+            g2d.drawLine(startX, frameHeight - startY, frameWidth - startX, frameHeight - startY);
+            g2d.drawLine(frameWidth - startX, startY, frameWidth - startX, frameHeight - startY);
 
 
         }
@@ -64,7 +79,7 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
             g2d.setStroke(new BasicStroke(1));
 
 
-            Toolkit.getDefaultToolkit().sync();
+
 
         }
     }
@@ -105,7 +120,8 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
 
 
     public Display()  {
-        Board = new int[561][711];
+
+        Board = new int[frameHeight - 2*startY + 1][frameWidth - 2*startX + 1];
         initBoardArray(Board);
         canvas = new GameDrawCanvas();
         infoDrawCanvas = new GameInfoDrawCanvas();
@@ -130,44 +146,74 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
-        playerX += playerXSpeed;
-        playerY += playerYSpeed;
-        int lastY = trueY;
-        int lastX = trueX;
-        trueX += playerXSpeed;
-        trueY += playerYSpeed;
 
-        if(trueX < 0) {
-            trueX = 0;
-            playerX = 20;
-        }else if(trueX > 710) {
-            trueX = 710;
-            playerX = 730;
-        }else if(trueY < 0) {
-            trueY = 0;
-            playerY = 20;
-        }else if(trueY > 560) {
-            trueY = 560;
-            playerY = 580;
-        }else if(moveOff){
-            if(this.Board[trueY][trueX] != 1){
-                while(this.Board[trueY][trueX] > 1) {
+        if(!direction.isEmpty()) {
+            int lastDirectionKey = direction.size() - 1;
+
+            int lastSpeedKey = slowOrFast.size() - 1;
+            int speed = 2;
+            if(lastSpeedKey != -1){
+                speed = slowOrFast.get(lastSpeedKey);
+            }
+
+            switch(direction.get(lastDirectionKey)){
+                case 1:
+                    playerXSpeed = -speed;
+                    playerYSpeed = 0;
+                    break;
+                case 2:
+                    playerYSpeed = -speed;
+                    playerXSpeed = 0;
+                    break;
+                case 3:
+                    playerXSpeed = speed;
+                    playerYSpeed = 0;
+                    break;
+                case 4:
+                    playerYSpeed = speed;
+                    playerXSpeed = 0;
+
+            }
+
+            playerX += playerXSpeed;
+            playerY += playerYSpeed;
+            int lastY = trueY;
+            int lastX = trueX;
+            trueX += playerXSpeed;
+            trueY += playerYSpeed;
+
+            if (trueX < 0) {
+                trueX = 0;
+                playerX = 20;
+            } else if (trueX > 710) {
+                trueX = 710;
+                playerX = 730;
+            } else if (trueY < 0) {
+                trueY = 0;
+                playerY = 20;
+            } else if (trueY > 560) {
+                trueY = 560;
+                playerY = 580;
+            } else if (moveOff) {
+                if (this.Board[trueY][trueX] != 1) {
+                    while (this.Board[trueY][trueX] > 1) {
+                        playerX -= playerXSpeed / 2;
+                        playerY -= playerYSpeed / 2;
+                        trueX -= playerXSpeed / 2;
+                        trueY -= playerYSpeed / 2;
+                    }
+                }
+
+            } else if (!moveOff && this.Board[lastY][lastX] == 1) {
+                while (this.Board[trueY][trueX] != 1) {
                     playerX -= playerXSpeed / 2;
                     playerY -= playerYSpeed / 2;
                     trueX -= playerXSpeed / 2;
                     trueY -= playerYSpeed / 2;
                 }
             }
-
-        }else if(!moveOff && this.Board[lastY][lastX] == 1){
-            while(this.Board[trueY][trueX] != 1) {
-                playerX -= playerXSpeed / 2;
-                playerY -= playerYSpeed / 2;
-                trueX -= playerXSpeed / 2;
-                trueY -= playerYSpeed / 2;
-            }
+            repaint();
         }
-        repaint();
     }
 
 
@@ -183,26 +229,50 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
             case KeyEvent.VK_UP:
                 playerYSpeed = -drawSpeed;
                 playerXSpeed = 0;
+                if(!isUpPressed){
+                    direction.add(2);
+                }
+                isUpPressed = true;
                 break;
             case KeyEvent.VK_DOWN:
                 playerYSpeed = drawSpeed;
                 playerXSpeed = 0;
+                if(!isDownPressed){
+                    direction.add(4);
+                }
+                isDownPressed = true;
                 break;
             case KeyEvent.VK_LEFT:
                 playerXSpeed = -drawSpeed;
                 playerYSpeed = 0;
+                if(!isLeftPressed){
+                    direction.add(1);
+                }
+                isLeftPressed = true;
                 break;
             case KeyEvent.VK_RIGHT:
                 playerXSpeed = drawSpeed;
                 playerYSpeed = 0;
+                if(!isRightPressed){
+                    direction.add(3);
+                }
+                isRightPressed = true;
                 break;
             case KeyEvent.VK_F:
                 drawSpeed = fastSpeed;
                 moveOff = true;
+                if(!isFastPressed){
+                    slowOrFast.add(fastSpeed);
+                }
+                isFastPressed = true;
                 break;
             case KeyEvent.VK_S:
-                moveOff = true;
                 drawSpeed = slowSpeed;
+                moveOff = true;
+                if(!isSlowPressed){
+                    slowOrFast.add(slowSpeed);
+                }
+                isSlowPressed = true;
         }
 
 
@@ -213,24 +283,42 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
     public void keyReleased(KeyEvent keyEvent) {
         System.out.println(this.Board[trueY][trueX]);
         System.out.println(moveOff);
-        if(this.Board[trueY][trueX] == 1) {
+        if(this.Board[trueY][trueX] == 1 && slowOrFast.size() == 1) {
             moveOff = false;
             System.out.println(moveOff);
         }
         switch (keyEvent.getKeyCode()){
             case KeyEvent.VK_S:
-            case KeyEvent.VK_F:
-
-
-                drawSpeed = 2;
+                isSlowPressed = false;
+                slowOrFast.remove((Integer)slowSpeed);
                 break;
-            default:
-                playerXSpeed = 0;
-                playerYSpeed = 0;
+            case KeyEvent.VK_F:
+                drawSpeed = 2;
+                isFastPressed = false;
+                slowOrFast.remove((Integer)fastSpeed);
+                break;
+            case KeyEvent.VK_DOWN:
+                isDownPressed = false;
+                direction.remove((Integer)4);
+                break;
+            case KeyEvent.VK_UP:
+                isUpPressed = false;
+                direction.remove((Integer)2);
+                break;
+            case KeyEvent.VK_LEFT:
+                isLeftPressed = false;
+                direction.remove((Integer)1);
+                break;
+            case KeyEvent.VK_RIGHT:
+                isRightPressed = false;
+                direction.remove((Integer)3);
+                break;
+
+            }
         }
 
 
-    }
+
 
 
 
@@ -238,5 +326,9 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
         //opens the window by creating a new Display class
         Display d = new Display();
         System.out.println(4/2);
+        ArrayList<Integer> test = new ArrayList<>();
+        test.add(5);
+        test.remove((Integer)5);
+
     }
 }
