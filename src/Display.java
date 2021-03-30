@@ -193,10 +193,10 @@ public class Display  extends JFrame implements MouseListener, ActionListener, K
                 playerXSpeed = drawSpeed;
                 playerYSpeed = 0;
                 break;
-            case KeyEvent.VK_A:
+            case KeyEvent.VK_F:
                 drawSpeed = fastSpeed;
                 break;
-            case KeyEvent.VK_B:
+            case KeyEvent.VK_S:
                 drawSpeed = slowSpeed;
         }
 
