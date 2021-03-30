@@ -10,11 +10,15 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
     private GameInfoDrawCanvas infoDrawCanvas;
     public final int frameWidth = 750;
     public final int frameHeight = 600;
+
     int length = 0;
     boolean backDraw = false;
     int playerRadius =5;
     int playerX = 300;
     int playerY = 580;
+
+    int startPathX = playerX;
+    int startPathY = playerY;
 
     int startX = 20;
     int startY = 20;
@@ -32,6 +36,7 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
 
     int[][] Board;
     boolean moveOff = false;
+    boolean lastMoveOff = false;
 
     boolean isUpPressed = false;
     boolean isDownPressed = false;
@@ -39,10 +44,11 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
     boolean isRightPressed = false;
 
     ArrayList<Integer> direction = new ArrayList<>(0);
-
     ArrayList<Integer> slowOrFast = new ArrayList<Integer>(0);
+
     boolean isFastPressed = false;
     boolean isSlowPressed = false;
+
 
 
     class GameDrawCanvas extends JPanel {
@@ -53,9 +59,17 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON);
             drawBackGround(g2d);
+            drawPath(g2d);
             drawPlayer(g2d);
             Toolkit.getDefaultToolkit().sync();
+//            int n = 12;
+//            int[] xpoints = new int[]{50, 70, 70, 170,  170, 190,  190,  170, 170,  70, 70, 50};
+//
+//            int[] ypoints = new int[]{50, 50, 30, 30, 50, 50, 150, 150, 170, 170, 150, 150};
+//            Polygon p = new Polygon(xpoints, ypoints, n);
+//            g2d.fill(p);
         }
+
 
         private void drawBackGround (Graphics2D g2d){
             g2d.setColor(Color.RED);
@@ -77,10 +91,11 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
             g2d.setStroke(new BasicStroke(2));
             g2d.draw(player);
             g2d.setStroke(new BasicStroke(1));
+        }
 
-
-
-
+        private void drawPath(Graphics2D g2d){
+            g2d.setColor(Color.WHITE);
+            g2d.drawLine(startPathX, startPathY, playerX, playerY);
         }
     }
 
@@ -117,10 +132,19 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
         return Board;
     }
 
+    private int[][] copyBoard(){
+        int[][] temp = new int[this.Board.length][this.Board[0].length];
+        for(int i = 0; i < Board.length; i++){
+            for(int j = 0; j < Board[0].length; j++){
+                temp[i][j] = this.Board[i][j];
+            }
+        }
+        return temp;
+    }
+
 
 
     public Display()  {
-
         Board = new int[frameHeight - 2*startY + 1][frameWidth - 2*startX + 1];
         initBoardArray(Board);
         canvas = new GameDrawCanvas();
@@ -142,7 +166,29 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
 
     }
 
-
+    public void putNewEdgeInBoard(int xSpeed, int ySpeed, int X, int Y){
+        if(xSpeed > 0) {
+            while (this.Board[Y][X] != 1) {
+                this.Board[Y][X] = 1;
+                X -= 1;
+            }
+        } else if(xSpeed < 0){
+            while (this.Board[Y][X] != 1) {
+                this.Board[Y][X] = 1;
+                X += 1;
+            }
+        }else if(ySpeed > 0){
+            while (this.Board[Y][X] != 1) {
+                this.Board[Y][X] = 1;
+                Y -= 1;
+            }
+        }else if(ySpeed < 0){
+            while (this.Board[Y][X] != 1) {
+                this.Board[Y][X] = 1;
+                Y += 1;
+            }
+        }
+    }
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
@@ -177,25 +223,32 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
 
             playerX += playerXSpeed;
             playerY += playerYSpeed;
+
             int lastY = trueY;
             int lastX = trueX;
             trueX += playerXSpeed;
             trueY += playerYSpeed;
 
+            // the following are corrections for going out of bound, or  from moving
+            // into the playfield without a button pressed
             if (trueX < 0) {
                 trueX = 0;
                 playerX = 20;
+
             } else if (trueX > 710) {
                 trueX = 710;
                 playerX = 730;
+
             } else if (trueY < 0) {
                 trueY = 0;
                 playerY = 20;
+
             } else if (trueY > 560) {
                 trueY = 560;
                 playerY = 580;
+
             } else if (moveOff) {
-                if (this.Board[trueY][trueX] != 1) {
+                if (this.Board[trueY][trueX] > 1) {
                     while (this.Board[trueY][trueX] > 1) {
                         playerX -= playerXSpeed / 2;
                         playerY -= playerYSpeed / 2;
@@ -204,14 +257,27 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
                     }
                 }
 
+                if(this.Board[lastY][lastX] == 1){
+                    startPathX = playerX;
+                    startPathY = playerY;
+                }
+
+
             } else if (!moveOff && this.Board[lastY][lastX] == 1) {
                 while (this.Board[trueY][trueX] != 1) {
                     playerX -= playerXSpeed / 2;
                     playerY -= playerYSpeed / 2;
+
                     trueX -= playerXSpeed / 2;
                     trueY -= playerYSpeed / 2;
                 }
             }
+
+            if(this.Board[trueY][trueX] == 1 && slowOrFast.size() == 0){
+                moveOff = false;
+                lastMoveOff = false;
+            }
+            //putNewEdgeInBoard(playerXSpeed, playerYSpeed, trueX, trueY);
             repaint();
         }
     }
@@ -260,6 +326,9 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
                 break;
             case KeyEvent.VK_F:
                 drawSpeed = fastSpeed;
+                if(moveOff){
+                    lastMoveOff = true;
+                }
                 moveOff = true;
                 if(!isFastPressed){
                     slowOrFast.add(fastSpeed);
@@ -268,7 +337,12 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
                 break;
             case KeyEvent.VK_S:
                 drawSpeed = slowSpeed;
+                if(moveOff){
+                    lastMoveOff = true;
+                }
                 moveOff = true;
+                startPathY = playerY;
+                startPathX = playerX;
                 if(!isSlowPressed){
                     slowOrFast.add(slowSpeed);
                 }
@@ -283,19 +357,27 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
     public void keyReleased(KeyEvent keyEvent) {
         System.out.println(this.Board[trueY][trueX]);
         System.out.println(moveOff);
-        if(this.Board[trueY][trueX] == 1 && slowOrFast.size() == 1) {
-            moveOff = false;
-            System.out.println(moveOff);
-        }
+//        if(this.Board[trueY][trueX] == 1 && slowOrFast.size() == 1) {
+//            moveOff = false;
+//            System.out.println(moveOff);
+//        }
         switch (keyEvent.getKeyCode()){
             case KeyEvent.VK_S:
                 isSlowPressed = false;
                 slowOrFast.remove((Integer)slowSpeed);
+//                if(slowOrFast.size() == 0){
+//                    moveOff = false;
+//                }
+
                 break;
             case KeyEvent.VK_F:
                 drawSpeed = 2;
                 isFastPressed = false;
+                moveOff = false;
                 slowOrFast.remove((Integer)fastSpeed);
+//                if(slowOrFast.size() == 0){
+//                    moveOff = false;
+//                }
                 break;
             case KeyEvent.VK_DOWN:
                 isDownPressed = false;
@@ -317,18 +399,12 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
             }
         }
 
-
-
-
-
-
     public static void main(String[]args){
         //opens the window by creating a new Display class
         Display d = new Display();
-        System.out.println(4/2);
-        ArrayList<Integer> test = new ArrayList<>();
-        test.add(5);
-        test.remove((Integer)5);
+
+
+
 
     }
 }
