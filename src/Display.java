@@ -4,7 +4,7 @@ import javax.swing.*;
 import javax.swing.Timer;
 import java.awt.geom.*; // For Ellipse2D, etc.
 import java.util.*;
-public class Display  extends JFrame implements MouseListener, ActionListener, KeyListener {
+public class Display  extends JFrame implements ActionListener, KeyListener {
 
     private GameDrawCanvas canvas;
     private GameInfoDrawCanvas infoDrawCanvas;
@@ -19,15 +19,16 @@ public class Display  extends JFrame implements MouseListener, ActionListener, K
     int playerXSpeed = 0;
     int playerYSpeed = 0;
 
-    int trueX = 280;
-    int trueY = 560;
+    int trueX = playerX - 20;
+    int trueY = playerY - 20;
 
-    int drawSpeed = 0;
+    int drawSpeed = 2;
 
     int fastSpeed = 4;
     int slowSpeed = 2;
 
     int[][] Board;
+    boolean moveOff = false;
 
 
     class GameDrawCanvas extends JPanel {
@@ -104,7 +105,7 @@ public class Display  extends JFrame implements MouseListener, ActionListener, K
 
 
     public Display()  {
-        Board = new int[560][710];
+        Board = new int[561][711];
         initBoardArray(Board);
         canvas = new GameDrawCanvas();
         infoDrawCanvas = new GameInfoDrawCanvas();
@@ -123,51 +124,53 @@ public class Display  extends JFrame implements MouseListener, ActionListener, K
         pack();           // pack all the components in the JFrame
         setVisible(true); // show it
 
-//        while(true){
-//            playerX += playerXSpeed;
-//            playerY += playerYSpeed;
-//            try {
-//                Thread.sleep(50);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//            repaint();
-//        }
     }
+
+
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
         playerX += playerXSpeed;
         playerY += playerYSpeed;
+        int lastY = trueY;
+        int lastX = trueX;
         trueX += playerXSpeed;
         trueY += playerYSpeed;
+
+        if(trueX < 0) {
+            trueX = 0;
+            playerX = 20;
+        }else if(trueX > 710) {
+            trueX = 710;
+            playerX = 730;
+        }else if(trueY < 0) {
+            trueY = 0;
+            playerY = 20;
+        }else if(trueY > 560) {
+            trueY = 560;
+            playerY = 580;
+        }else if(moveOff){
+            if(this.Board[trueY][trueX] != 1){
+                while(this.Board[trueY][trueX] > 1) {
+                    playerX -= playerXSpeed / 2;
+                    playerY -= playerYSpeed / 2;
+                    trueX -= playerXSpeed / 2;
+                    trueY -= playerYSpeed / 2;
+                }
+            }
+
+        }else if(!moveOff && this.Board[lastY][lastX] == 1){
+            while(this.Board[trueY][trueX] != 1) {
+                playerX -= playerXSpeed / 2;
+                playerY -= playerYSpeed / 2;
+                trueX -= playerXSpeed / 2;
+                trueY -= playerYSpeed / 2;
+            }
+        }
         repaint();
     }
 
-    @Override
-    public void mouseClicked(MouseEvent mouseEvent) {
 
-    }
-
-    @Override
-    public void mousePressed(MouseEvent mouseEvent) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent mouseEvent) {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent mouseEvent) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent mouseEvent) {
-
-    }
 
     @Override
     public void keyTyped(KeyEvent keyEvent) {
@@ -195,8 +198,10 @@ public class Display  extends JFrame implements MouseListener, ActionListener, K
                 break;
             case KeyEvent.VK_F:
                 drawSpeed = fastSpeed;
+                moveOff = true;
                 break;
             case KeyEvent.VK_S:
+                moveOff = true;
                 drawSpeed = slowSpeed;
         }
 
@@ -206,13 +211,18 @@ public class Display  extends JFrame implements MouseListener, ActionListener, K
 
     @Override
     public void keyReleased(KeyEvent keyEvent) {
-
+        System.out.println(this.Board[trueY][trueX]);
+        System.out.println(moveOff);
+        if(this.Board[trueY][trueX] == 1) {
+            moveOff = false;
+            System.out.println(moveOff);
+        }
         switch (keyEvent.getKeyCode()){
-            case KeyEvent.VK_A:
-            case KeyEvent.VK_B:
-                playerXSpeed = 0;
-                playerYSpeed = 0;
-                drawSpeed = 0;
+            case KeyEvent.VK_S:
+            case KeyEvent.VK_F:
+
+
+                drawSpeed = 2;
                 break;
             default:
                 playerXSpeed = 0;
@@ -226,8 +236,7 @@ public class Display  extends JFrame implements MouseListener, ActionListener, K
 
     public static void main(String[]args){
         //opens the window by creating a new Display class
-
         Display d = new Display();
-
+        System.out.println(4/2);
     }
 }
