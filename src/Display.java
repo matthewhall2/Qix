@@ -49,6 +49,15 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
     boolean isFastPressed = false;
     boolean isSlowPressed = false;
 
+    int lastDirection = 0;
+
+    ArrayList<Integer> currentPathLineListX = new ArrayList<>();
+    ArrayList<Integer> currentPathLineListY = new ArrayList<>();
+    boolean clearPath = false;
+
+    ArrayList<ArrayList<Integer>> permanentPathLineListX = new ArrayList<>();
+    ArrayList<ArrayList<Integer>> permanentPathLineListY = new ArrayList<>();
+
 
 
     class GameDrawCanvas extends JPanel {
@@ -59,7 +68,18 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON);
             drawBackGround(g2d);
-            drawPath(g2d);
+            g2d.setColor(Color.WHITE);
+            g2d.drawLine(startPathX, startPathY, playerX, playerY);
+            drawPath(g2d, currentPathLineListX, currentPathLineListY);
+            drawAllPaths(g2d);
+
+            if(clearPath){
+
+                permanentPathLineListX.add((ArrayList<Integer>) currentPathLineListX.clone());
+                permanentPathLineListY.add((ArrayList<Integer>) currentPathLineListY.clone());
+                currentPathLineListX.clear();
+                currentPathLineListY.clear();
+            }
             drawPlayer(g2d);
             Toolkit.getDefaultToolkit().sync();
 //            int n = 12;
@@ -80,8 +100,6 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
             g2d.drawLine(startX, startY, startX, frameHeight - startY);
             g2d.drawLine(startX, frameHeight - startY, frameWidth - startX, frameHeight - startY);
             g2d.drawLine(frameWidth - startX, startY, frameWidth - startX, frameHeight - startY);
-
-
         }
 
         private void drawPlayer(Graphics2D g2d){
@@ -93,9 +111,25 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
             g2d.setStroke(new BasicStroke(1));
         }
 
-        private void drawPath(Graphics2D g2d){
+        private void drawPath(Graphics2D g2d, ArrayList<Integer> X, ArrayList<Integer> Y){
             g2d.setColor(Color.WHITE);
-            g2d.drawLine(startPathX, startPathY, playerX, playerY);
+            int i = 1;
+            while(i < X.size()){
+                int x1 = X.get(i - 1);
+                int y1 = Y.get(i - 1);
+                int x2 = X.get(i);
+                int y2= Y.get(i);
+                g2d.drawLine(x1, y1, x2, y2);
+                i += 1;
+            }
+        }
+
+        private void drawAllPaths(Graphics2D g2d){
+            int i = 0;
+            while(i < permanentPathLineListX.size()){
+                drawPath(g2d, permanentPathLineListX.get(i), permanentPathLineListY.get(i));
+                i++;
+            }
         }
     }
 
@@ -142,8 +176,6 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
         return temp;
     }
 
-
-
     public Display()  {
         Board = new int[frameHeight - 2*startY + 1][frameWidth - 2*startX + 1];
         initBoardArray(Board);
@@ -166,23 +198,36 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
 
     }
 
-    public void putNewEdgeInBoard(int xSpeed, int ySpeed, int X, int Y){
-        if(xSpeed > 0) {
+    public void putNewEdgeInBoard(int direction, int X, int Y){
+        this.Board[Y][X] = 1;
+        if(direction == 3) {
+            if(X > 0){
+                X -= 1;
+            }
             while (this.Board[Y][X] != 1) {
                 this.Board[Y][X] = 1;
                 X -= 1;
             }
-        } else if(xSpeed < 0){
+        } else if(direction == 1){
+            if(X < 710){
+                X += 1;
+            }
             while (this.Board[Y][X] != 1) {
                 this.Board[Y][X] = 1;
                 X += 1;
             }
-        }else if(ySpeed > 0){
+        }else if(direction == 4){
+            if(Y > 0){
+                Y -= 1;
+            }
             while (this.Board[Y][X] != 1) {
                 this.Board[Y][X] = 1;
                 Y -= 1;
             }
-        }else if(ySpeed < 0){
+        }else if(direction == 2){
+            if(Y < 560){
+                Y += 1;
+            }
             while (this.Board[Y][X] != 1) {
                 this.Board[Y][X] = 1;
                 Y += 1;
@@ -190,19 +235,161 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
         }
     }
 
+    public void fillBoardArea(){
+        int i = 2;
+        while(i < currentPathLineListX.size()){
+            int x1 = currentPathLineListX.get(i - 2) - startX;
+            System.out.println(x1);
+            int y1 = currentPathLineListY.get(i - 2) - startY;
+            System.out.println(y1);
+            int x2 = currentPathLineListX.get(i - 1) - startX;
+            System.out.println(x2);
+            int y2 = currentPathLineListY.get(i - 1) - startY;
+            System.out.println(y2);
+            int x3 = currentPathLineListX.get(i) - startX;
+            System.out.println(x3);
+            int y3 = currentPathLineListY.get(i) - startY;
+            System.out.println(y1);
+            int temp = 0;
+
+            if(x1 == x2){
+                if(y1 > y2){
+                    if(x3 < x1){
+
+                        y1 -= 1;
+                        while(y1 > y2){
+                            temp = x1 - 1;
+                            while(temp >= x3){
+                                if(this.Board[y1][temp] == 1){
+                                    break;
+                                }
+                                this.Board[y1][temp] = 2;
+                                temp -= 1;
+                            }
+                            y1 -= 1;
+                        }
+                    }else if(x3 > x1){
+                        y1 -= 1;
+                        while(y1 >= y2){
+                            temp = x1 + 1;
+                            while(temp <= x3){
+                                if(this.Board[y1][temp] == 1){
+                                    break;
+                                }
+                                this.Board[y1][temp] = 2;
+                                temp += 1;
+                            }
+                            y1 -= 1;
+                        }
+                    }
+                }else if(y1 < y2){
+                    if(x3 < x1){
+
+                        y1 += 1;
+                        while(y1 <= y2){
+                            temp = x1 - 1;
+                            while(temp >= x3){
+                                if(this.Board[y1][temp] == 1){
+                                    break;
+                                }
+                                this.Board[y1][temp] = 2;
+                                temp -= 1;
+                            }
+                            y1 += 1;
+                        }
+                    }else if(x3 > x1){
+                        y1 += 1;
+                        while(y1 <= y2){
+                            temp = x1 + 1;
+                            while(temp <= x3){
+                                if(this.Board[y1][temp] == 1){
+                                    break;
+                                }
+                                this.Board[y1][temp] = 2;
+                                temp += 1;
+                            }
+                            y1 += 1;
+                        }
+                    }
+                }
+
+
+            }else if(y1 == y2) {
+                if(x1 > x2){
+                    if(y3 < y1){
+                        x1 -= 1;
+                        while(x1 > x2){
+                            temp = y1 - 1;
+                            while(temp >= y3){
+                                if(this.Board[temp][x1] == 1){
+                                    break;
+                                }
+                                this.Board[temp][x1] = 2;
+                                temp -= 1;
+                            }
+                            x1 -= 1;
+                        }
+                    }else if(y3 > y1){
+                        x1 -= 1;
+                        while(x1 > x2){
+                            temp = y1 + 1;
+                            while(temp <= y3){
+                                if(this.Board[temp][x1] == 1){
+                                    break;
+                                }
+                                this.Board[temp][x1] = 2;
+                                temp += 1;
+                            }
+                            x1 -= 1;
+                        }
+                    }
+                }else if(x1 < x2){
+                    if(y3 < y1){
+                        x1 += 1;
+                        while(x1 < x2){
+                            temp = y1 - 1;
+                            while(temp >= y3){
+                                if(this.Board[temp][x1] == 1){
+                                    break;
+                                }
+                                this.Board[temp][x1] = 2;
+                                temp -= 1;
+                            }
+                            x1 += 1;
+                        }
+                    }else if(y3 > y1){
+                        x1 += 1;
+                        while(x1 > x2){
+                            temp = y1 + 1;
+                            while(temp <= y3){
+                                if(this.Board[temp][x1] == 1){
+                                    break;
+                                }
+                                this.Board[temp][x1] = 2;
+                                temp += 1;
+                            }
+                            x1 += 1;
+                        }
+                    }
+
+                }
+            }
+            i += 1;
+        }
+    }
+
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
-
         if(!direction.isEmpty()) {
-            int lastDirectionKey = direction.size() - 1;
-
+           // int lastDirectionKey = direction.size() - 1;
+            int dir = direction.get(direction.size() - 1);
             int lastSpeedKey = slowOrFast.size() - 1;
             int speed = 2;
             if(lastSpeedKey != -1){
                 speed = slowOrFast.get(lastSpeedKey);
             }
 
-            switch(direction.get(lastDirectionKey)){
+            switch(dir){
                 case 1:
                     playerXSpeed = -speed;
                     playerYSpeed = 0;
@@ -223,7 +410,6 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
 
             playerX += playerXSpeed;
             playerY += playerYSpeed;
-
             int lastY = trueY;
             int lastX = trueX;
             trueX += playerXSpeed;
@@ -257,9 +443,32 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
                     }
                 }
 
-                if(this.Board[lastY][lastX] == 1){
+//                if (this.Board[lastY][lastX] == 1 && this.Board[trueY][trueX] == 0 || dir != lastDirection) {
+//                    clearPath = false;
+//                    startPathX = lastX + 20;
+//                    startPathY = lastY + 20;
+//                    System.out.println(lastX);
+//                    System.out.println(lastY);
+//                    currentPathLineListX.add(lastX + 20);
+//                    currentPathLineListY.add(lastY + 20);
+//                    putNewEdgeInBoard(lastDirection, lastX, lastY);
+//                }
+                if(this.Board[lastY][lastX] == 1 && this.Board[trueY][trueX] == 1){
                     startPathX = playerX;
                     startPathY = playerY;
+                }else if(this.Board[lastY][lastX] == 1 && this.Board[trueY][trueX] == 0 || dir != lastDirection) {
+                    clearPath = false;
+                    startPathX = lastX + 20;
+                    startPathY = lastY + 20;
+                    System.out.println(lastX);
+                    System.out.println(lastY);
+                    currentPathLineListX.add(lastX + 20);
+                    currentPathLineListY.add(lastY + 20);
+                    if(dir != lastDirection) {
+                        putNewEdgeInBoard(lastDirection, lastX, lastY);
+                    }else{
+                        putNewEdgeInBoard(lastDirection, playerX, playerY);
+                    }
                 }
 
 
@@ -270,16 +479,34 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
 
                     trueX -= playerXSpeed / 2;
                     trueY -= playerYSpeed / 2;
+                    startPathY = playerY;
+                    startPathX = playerX;
                 }
             }
 
             if(this.Board[trueY][trueX] == 1 && slowOrFast.size() == 0){
                 moveOff = false;
                 lastMoveOff = false;
+                startPathX = playerX;
+                startPathY = playerY;
             }
-            //putNewEdgeInBoard(playerXSpeed, playerYSpeed, trueX, trueY);
+            if(this.Board[trueY][trueX] == 1 && this.currentPathLineListX.size() > 0){
+                this.currentPathLineListX.add(trueX + 20);
+                this.currentPathLineListY.add(trueY + 20);
+                clearPath = true;
+
+                putNewEdgeInBoard(dir, trueX, trueY);
+                fillBoardArea();
+
+                System.out.println(Arrays.toString(this.Board[trueY]));
+//                System.out.println(clearPath);
+            }
+
+            lastDirection = dir;
+
             repaint();
         }
+
     }
 
 
@@ -330,6 +557,8 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
                     lastMoveOff = true;
                 }
                 moveOff = true;
+//                startPathY = playerY;
+//                startPathX = playerX;
                 if(!isFastPressed){
                     slowOrFast.add(fastSpeed);
                 }
@@ -340,23 +569,23 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
                 if(moveOff){
                     lastMoveOff = true;
                 }
+//                if(!moveOff) {
+//                    startPathY = playerY;
+//                    startPathX = playerX;
+//                }
                 moveOff = true;
-                startPathY = playerY;
-                startPathX = playerX;
+
                 if(!isSlowPressed){
                     slowOrFast.add(slowSpeed);
                 }
                 isSlowPressed = true;
         }
-
-
-
     }
 
     @Override
     public void keyReleased(KeyEvent keyEvent) {
-        System.out.println(this.Board[trueY][trueX]);
-        System.out.println(moveOff);
+//        System.out.println(this.Board[trueY][trueX]);
+//        System.out.println(moveOff);
 //        if(this.Board[trueY][trueX] == 1 && slowOrFast.size() == 1) {
 //            moveOff = false;
 //            System.out.println(moveOff);
