@@ -58,6 +58,8 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
     ArrayList<ArrayList<Integer>> permanentPathLineListX = new ArrayList<>();
     ArrayList<ArrayList<Integer>> permanentPathLineListY = new ArrayList<>();
 
+    ArrayList<Polygon> polygonList = new ArrayList<>();
+
 
 
     class GameDrawCanvas extends JPanel {
@@ -67,17 +69,22 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
             Graphics2D g2d = (Graphics2D) g;
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON);
+            drawPolygons(g2d, Color.BLUE);
+            g2d.setColor(Color.WHITE);
             drawBackGround(g2d);
             g2d.setColor(Color.WHITE);
+
             g2d.drawLine(startPathX, startPathY, playerX, playerY);
             drawPath(g2d, currentPathLineListX, currentPathLineListY);
             drawAllPaths(g2d);
 
             if(clearPath){
-
+                // System.out.println("testing");
+                addToPolyArr();
                 permanentPathLineListX.add((ArrayList<Integer>) currentPathLineListX.clone());
                 permanentPathLineListY.add((ArrayList<Integer>) currentPathLineListY.clone());
                 currentPathLineListX.clear();
+                //System.out.println(currentPathLineListX.size());
                 currentPathLineListY.clear();
             }
             drawPlayer(g2d);
@@ -90,11 +97,19 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
 //            g2d.fill(p);
         }
 
+        private void drawPolygons(Graphics2D g2d, Color color){
+            g2d.setColor(color);
+            int i = polygonList.size() - 1;
+            while(i >= 0){
+                g2d.fill(polygonList.get(i));
+                g2d.draw(polygonList.get(i));
+                i -= 1;
+            }
+        }
 
         private void drawBackGround (Graphics2D g2d){
             g2d.setColor(Color.RED);
             this.setBackground(Color.BLACK);
-
             g2d.setColor(Color.WHITE);
             g2d.drawLine(startX, startY, frameWidth - startX, startX);
             g2d.drawLine(startX, startY, startX, frameHeight - startY);
@@ -140,8 +155,6 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
             g2d.setColor(Color.RED);
 
             this.setBackground(Color.BLACK);
-
-
             g2d.setColor(Color.RED);
             g2d.drawLine(0, 140, frameWidth, 140);
             g2d.setColor(Color.MAGENTA);
@@ -239,15 +252,15 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
         int i = 2;
         while(i < currentPathLineListX.size()){
             int x1 = currentPathLineListX.get(i - 2) - startX;
-           // System.out.println(x1);
+            // System.out.println(x1);
             int y1 = currentPathLineListY.get(i - 2) - startY;
             //System.out.println(y1);
             int x2 = currentPathLineListX.get(i - 1) - startX;
             //System.out.println(x2);
             int y2 = currentPathLineListY.get(i - 1) - startY;
-           // System.out.println(y2);
+            // System.out.println(y2);
             int x3 = currentPathLineListX.get(i) - startX;
-           // System.out.println(x3);
+            // System.out.println(x3);
             int y3 = currentPathLineListY.get(i) - startY;
             //System.out.println(y1);
             int temp = 0;
@@ -261,7 +274,7 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
                             temp = x1 - 1;
                             while(temp >= x3){
                                 if(this.Board[y1][temp] == 0){
-                                   this.Board[y1][temp] = 2;
+                                    this.Board[y1][temp] = 2;
                                 }
                                 //this.Board[y1][temp] = 2;
                                 temp -= 1;
@@ -383,13 +396,13 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
 
     public void fillBoardFrom2Points(){
         int x1 = currentPathLineListX.get(0) - startX;
-        System.out.println(x1);
+        //System.out.println(x1);
         int y1 = currentPathLineListY.get(0) - startY;
-        System.out.println(y1);
+        //System.out.println(y1);
         int x2 = currentPathLineListX.get(1) - startX;
-        System.out.println(x2);
+        //System.out.println(x2);
         int y2 = currentPathLineListY.get(1) - startY;
-        System.out.println(y2);
+        // System.out.println(y2);
         int count = 0;
         int temp = 0;
         if(y1 == y2) {
@@ -419,7 +432,7 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
                             }
                             temp -= 1;
                         }
-                        y1 += 1;
+                        y1 -= 1;
                     }
                 }
             }else if(x1 < x2){
@@ -514,12 +527,105 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
         }
     }
 
+    public void addToPolyArr(){
+        ArrayList<Integer> finalPoint = findPolygonCorner();
+        if(finalPoint.size() == 4){
+            int[] X = arrayListToIntArray(currentPathLineListX, 2);
+            int[] Y = arrayListToIntArray(currentPathLineListY, 2);
+            Y[Y.length - 2] = finalPoint.get(1);
+            X[X.length - 2] = finalPoint.get(0);
+            X[X.length - 1] = finalPoint.get(2);
+            Y[Y.length - 1] = finalPoint.get(3);
+            Polygon p = new Polygon(X, Y, X.length);
+            polygonList.add(p);
+        }else if(finalPoint.size() == 2) {
+            int[] X = arrayListToIntArray(currentPathLineListX, 1);
+            int[] Y = arrayListToIntArray(currentPathLineListY, 1);
+            Y[Y.length - 1] = finalPoint.get(1);
+            X[X.length - 1] = finalPoint.get(0);
+            Polygon p = new Polygon(X, Y, X.length);
+            polygonList.add(p);
+        }else{
+            int[] X = arrayListToIntArray(currentPathLineListX, 0);
+            int[] Y = arrayListToIntArray(currentPathLineListY, 0);
+            Polygon p = new Polygon(X, Y, X.length);
+            polygonList.add(p);
+        }
+    }
+
+    public ArrayList<Integer> findPolygonCorner() {
+        int last = currentPathLineListX.size() - 1;
+        int x1 = currentPathLineListX.get(0);
+        int y1 = currentPathLineListY.get(0);
+        int x2 = currentPathLineListX.get(last);
+        int y2 = currentPathLineListY.get(last);
+        ArrayList<Integer> r = new ArrayList<>();
+        if (currentPathLineListX.size() == 2) {
+            if(y1 == y2){
+                if(y1 >= 280){
+                    r.add(x2);
+                    r.add(580);
+                    r.add(x1);
+                    r.add(580);
+                }else{
+                    r.add(x2);
+                    r.add(20);
+                    r.add(x1);
+                    r.add(20);
+                }
+            }else if(x1 == x2){
+                if(x1 >= 355){
+                    r.add(730);
+                    r.add(y2);
+                    r.add(730);
+                    r.add(y1);
+                }else{
+                    r.add(20);
+                    r.add(y2);
+                    r.add(20);
+                    r.add(y1);
+                }
+            }
+        } else {
+            if (x1 == x2 || y1 == y2) {
+
+            } else {
+                if (x1 > x2 && y1 > y2) {
+                    r.add(x2);
+                    r.add(y1);
+                } else if (x1 > x2 && y1 < y2) {
+                    r.add(x2);
+                    r.add(y1);
+                } else if (x1 < x2 && y1 > y2) {
+                    r.add(x2);
+                    r.add(y1);
+                } else if (x1 < x2 && y1 < y2) {
+                    r.add(x2);
+                    r.add(y1);
+                }
+
+            }
+        }
+        return r;
+    }
+
+    public int[] arrayListToIntArray(ArrayList<Integer> lst, int extra){
+
+        int[] r = new int[lst.size() + extra];
+        int i = 0;
+        while(i < lst.size()){
+            r[i] = lst.get(i);
+            i += 1;
+        }
+        return r;
+    }
+
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
 
-
+        clearPath = false;
         if(!direction.isEmpty()) {
-           // int lastDirectionKey = direction.size() - 1;
+            // int lastDirectionKey = direction.size() - 1;
             int dir = direction.get(direction.size() - 1);
             int lastSpeedKey = slowOrFast.size() - 1;
             int speed = 2;
@@ -555,6 +661,7 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
             int lastX = trueX;
             trueX += playerXSpeed;
             trueY += playerYSpeed;
+            boolean moveBack = false;
 
             // the following are corrections for going out of bound, or  from moving
             // into the playfield without a button pressed
@@ -575,12 +682,15 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
                 playerY = 580;
 
             } else if (moveOff) {
+                //System.out.println("test");
                 if (this.Board[trueY][trueX] > 1) {
+                    moveBack = true;
                     while (this.Board[trueY][trueX] > 1) {
                         playerX -= playerXSpeed / 2;
                         playerY -= playerYSpeed / 2;
                         trueX -= playerXSpeed / 2;
                         trueY -= playerYSpeed / 2;
+
                     }
                 }
 //                if (this.Board[lastY][lastX] == 1 && this.Board[trueY][trueX] == 0 || dir != lastDirection) {
@@ -605,17 +715,19 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
 //                        startPathY = lastY + 20;
 //                    }
                     clearPath = false;
-                    startPathX = lastX + 20;
-                    startPathY = lastY + 20;
+                    if(!moveBack && this.Board[trueY][trueX] !=1) {
+                        startPathX = lastX + 20;
+                        startPathY = lastY + 20;
 //                    System.out.println(lastX);
 ////                    System.out.println(lastY);
-                    currentPathLineListX.add(lastX + 20);
-                    currentPathLineListY.add(lastY + 20);
-                    if(dir != lastDirection) {
-                        putNewEdgeInBoard(lastDirection, lastX, lastY);
+                        currentPathLineListX.add(lastX + 20);
+                        currentPathLineListY.add(lastY + 20);
+                        if (dir != lastDirection) {
+                            putNewEdgeInBoard(lastDirection, lastX, lastY);
 
-                    }else{
-                        putNewEdgeInBoard(lastDirection, playerX, playerY);
+                        } else {
+                            putNewEdgeInBoard(lastDirection, playerX, playerY);
+                        }
                     }
                 }
 
@@ -645,14 +757,19 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
                 startPathY = playerY;
             }
             if(this.Board[trueY][trueX] == 1 && this.currentPathLineListX.size() > 0){
+                System.out.println("the fuck");
                 this.currentPathLineListX.add(trueX + 20);
                 this.currentPathLineListY.add(trueY + 20);
+                startPathX = playerX;
+                startPathY = playerY;
+                System.out.println(this.currentPathLineListX.size());
                 clearPath = true;
+                moveOff =false;
 
                 putNewEdgeInBoard(dir, trueX, trueY);
                 fillBoardArea();
 
-               // System.out.println(Arrays.toString(this.Board[trueY]));
+                // System.out.println(Arrays.toString(this.Board[trueY]));
 //                System.out.println(clearPath);
             }
 
@@ -756,7 +873,7 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
             case KeyEvent.VK_F:
                 drawSpeed = 2;
                 isFastPressed = false;
-                moveOff = false;
+                //moveOff = false;
                 slowOrFast.remove((Integer)fastSpeed);
 //                if(slowOrFast.size() == 0){
 //                    moveOff = false;
@@ -779,8 +896,8 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
                 direction.remove((Integer)3);
                 break;
 
-            }
         }
+    }
 
     public static void main(String[]args){
         //opens the window by creating a new Display class
