@@ -3,13 +3,22 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.Timer;
 import java.awt.geom.*; // For Ellipse2D, etc.
+import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
 import java.util.*;
+import org.jgrapht.*;
+import org.jgrapht.alg.cycle.CycleDetector;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DefaultUndirectedWeightedGraph;
+import org.jgrapht.graph.DefaultWeightedEdge;
+
 public class Display  extends JFrame implements ActionListener, KeyListener {
 
     private GameDrawCanvas canvas;
     private GameInfoDrawCanvas infoDrawCanvas;
     public final int frameWidth = 750;
     public final int frameHeight = 600;
+    Robot myRobot;
 
     int length = 0;
     boolean backDraw = false;
@@ -59,21 +68,37 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
     ArrayList<ArrayList<Integer>> permanentPathLineListY = new ArrayList<>();
 
     ArrayList<Polygon> polygonList = new ArrayList<>();
-
+    int startPathDirection = 0;
+    int endPathDirection = 0;
 
 
     class GameDrawCanvas extends JPanel {
         //painting method
+        BufferedImage bufferImage;
+        BufferStrategy bs;
+        Robot myRobot;
+        public GameDrawCanvas() throws AWTException {
+            Display.this.createBufferStrategy(1);
+           // myRobot = new Robot();
+
+           // this.bufferImage = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
+        }
         public void paintComponent(Graphics g) {
+
             super.paintComponent(g);
-            Graphics2D g2d = (Graphics2D) g;
+           // System.out.println(canvas.getLocationOnScreen());
+            //Point p = canvas.getLocationOnScreen();
+            //int x = p.x;
+            //int y = p.y;
+
+            Graphics2D g2d = (Graphics2D)g;
+            //System.out.println(myRobot.getPixelColor(x + playerX, y + playerY));
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON);
             drawPolygons(g2d, Color.BLUE);
             g2d.setColor(Color.WHITE);
             drawBackGround(g2d);
             g2d.setColor(Color.WHITE);
-
             g2d.drawLine(startPathX, startPathY, playerX, playerY);
             drawPath(g2d, currentPathLineListX, currentPathLineListY);
             drawAllPaths(g2d);
@@ -81,11 +106,16 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
             if(clearPath){
                 // System.out.println("testing");
                 addToPolyArr();
+                //System.out.println(polygonList.size());
+                updateBoard();
                 permanentPathLineListX.add((ArrayList<Integer>) currentPathLineListX.clone());
                 permanentPathLineListY.add((ArrayList<Integer>) currentPathLineListY.clone());
                 currentPathLineListX.clear();
                 //System.out.println(currentPathLineListX.size());
                 currentPathLineListY.clear();
+                startPathDirection = 0;
+                endPathDirection = 0;
+                moveOff = false;
             }
             drawPlayer(g2d);
             Toolkit.getDefaultToolkit().sync();
@@ -95,14 +125,20 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
 //            int[] ypoints = new int[]{50, 50, 30, 30, 50, 50, 150, 150, 170, 170, 150, 150};
 //            Polygon p = new Polygon(xpoints, ypoints, n);
 //            g2d.fill(p);
+//            g2d.drawImage(bufferImage, 0, 0, this);
+//            g2d.dispose();
         }
 
         private void drawPolygons(Graphics2D g2d, Color color){
-            g2d.setColor(color);
             int i = polygonList.size() - 1;
+            //polygonList.get(0);
             while(i >= 0){
+                g2d.setColor(color);
                 g2d.fill(polygonList.get(i));
+                g2d.setColor(Color.WHITE);
                 g2d.draw(polygonList.get(i));
+
+
                 i -= 1;
             }
         }
@@ -189,8 +225,9 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
         return temp;
     }
 
-    public Display()  {
-        Board = new int[frameHeight - 2*startY + 1][frameWidth - 2*startX + 1];
+    public Display() throws AWTException {
+        myRobot = new Robot();
+        Board = new int[frameHeight - 2 * startY + 1][frameWidth - 2 * startX + 1];
         initBoardArray(Board);
         canvas = new GameDrawCanvas();
         infoDrawCanvas = new GameInfoDrawCanvas();
@@ -208,7 +245,9 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
         setTitle("Qix");
         pack();           // pack all the components in the JFrame
         setVisible(true); // show it
-
+        Graph<String, DefaultWeightedEdge> g = new DefaultUndirectedWeightedGraph<String,
+                DefaultWeightedEdge>(DefaultWeightedEdge.class);
+        CycleDetector<String, DefaultEdge> c;
     }
 
     public void putNewEdgeInBoard(int direction, int X, int Y){
@@ -248,370 +287,148 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
         }
     }
 
-    public void fillBoardArea(){
-        int i = 2;
-        while(i < currentPathLineListX.size()){
-            int x1 = currentPathLineListX.get(i - 2) - startX;
-            // System.out.println(x1);
-            int y1 = currentPathLineListY.get(i - 2) - startY;
-            //System.out.println(y1);
-            int x2 = currentPathLineListX.get(i - 1) - startX;
-            //System.out.println(x2);
-            int y2 = currentPathLineListY.get(i - 1) - startY;
-            // System.out.println(y2);
-            int x3 = currentPathLineListX.get(i) - startX;
-            // System.out.println(x3);
-            int y3 = currentPathLineListY.get(i) - startY;
-            //System.out.println(y1);
-            int temp = 0;
-
-            if(x1 == x2){
-                if(y1 > y2){
-                    if(x3 < x1){
-
-                        y1 -= 1;
-                        while(y1 > y2){
-                            temp = x1 - 1;
-                            while(temp >= x3){
-                                if(this.Board[y1][temp] == 0){
-                                    this.Board[y1][temp] = 2;
-                                }
-                                //this.Board[y1][temp] = 2;
-                                temp -= 1;
-                            }
-                            y1 -= 1;
-                        }
-                    }else if(x3 > x1){
-                        y1 -= 1;
-                        while(y1 >= y2){
-                            temp = x1 + 1;
-                            while(temp <= x3){
-                                if(this.Board[y1][temp] == 0){
-                                    this.Board[y1][temp] = 2;
-                                }
-                                //this.Board[y1][temp] = 2;
-                                temp += 1;
-                            }
-                            y1 -= 1;
-                        }
-                    }
-                }else if(y1 < y2){
-                    if(x3 < x1){
-
-                        y1 += 1;
-                        while(y1 <= y2){
-                            temp = x1 - 1;
-                            while(temp >= x3){
-                                if(this.Board[y1][temp] == 0){
-                                    this.Board[y1][temp] = 2;
-                                }
-                                //this.Board[y1][temp] = 2;
-                                temp -= 1;
-                            }
-                            y1 += 1;
-                        }
-                    }else if(x3 > x1){
-                        y1 += 1;
-                        while(y1 <= y2){
-                            temp = x1 + 1;
-                            while(temp <= x3){
-                                if(this.Board[y1][temp] == 0){
-                                    this.Board[y1][temp] = 2;
-                                }
-                                //this.Board[y1][temp] = 2;
-                                temp += 1;
-                            }
-                            y1 += 1;
-                        }
-                    }
-                }
-
-
-            }else if(y1 == y2) {
-                if(x1 > x2){
-                    if(y3 < y1){
-                        x1 -= 1;
-                        while(x1 > x2){
-                            temp = y1 - 1;
-                            while(temp >= y3){
-                                if(this.Board[temp][x1] == 0){
-                                    this.Board[temp][x1] = 2;
-                                }
-                                //this.Board[temp][x1] = 2;
-                                temp -= 1;
-                            }
-                            x1 -= 1;
-                        }
-                    }else if(y3 > y1){
-                        x1 -= 1;
-                        while(x1 > x2){
-                            temp = y1 + 1;
-                            while(temp <= y3){
-                                if(this.Board[temp][x1] == 0){
-                                    this.Board[temp][x1] = 2;
-                                }
-                                //this.Board[temp][x1] = 2;
-                                temp += 1;
-                            }
-                            x1 -= 1;
-                        }
-                    }
-                }else if(x1 < x2){
-                    if(y3 < y1){
-                        x1 += 1;
-                        while(x1 < x2){
-                            temp = y1 - 1;
-                            while(temp >= y3){
-                                if(this.Board[temp][x1] == 0){
-                                    this.Board[temp][x1] = 2;
-                                }
-                                //this.Board[temp][x1] = 2;
-                                temp -= 1;
-                            }
-                            x1 += 1;
-                        }
-                    }else if(y3 > y1){
-                        x1 += 1;
-                        while(x1 > x2){
-                            temp = y1 + 1;
-                            while(temp <= y3){
-                                if(this.Board[temp][x1] == 0){
-                                    this.Board[temp][x1] = 2;
-                                }
-                                //this.Board[temp][x1] = 2;
-                                temp += 1;
-                            }
-                            x1 += 1;
-                        }
-                    }
-
-                }
-            }
-            i += 1;
-        }
-        if(currentPathLineListX.size() == 2){
-            fillBoardFrom2Points();
-        }
-    }
-
-    public void fillBoardFrom2Points(){
-        int x1 = currentPathLineListX.get(0) - startX;
-        //System.out.println(x1);
-        int y1 = currentPathLineListY.get(0) - startY;
-        //System.out.println(y1);
-        int x2 = currentPathLineListX.get(1) - startX;
-        //System.out.println(x2);
-        int y2 = currentPathLineListY.get(1) - startY;
-        // System.out.println(y2);
-        int count = 0;
-        int temp = 0;
-        if(y1 == y2) {
-            if(x1 > x2) {
-                if(y1 >= 280){
-                    temp = x1 - 1;
-                    y1 += 1;
-                    while(y1 < 560){
-                        temp = x1 - 1;
-                        while(temp > x2){
-                            if(this.Board[y1][temp] == 0){
-                                this.Board[y1][temp] = 2;
-                            }
-
-                            temp -= 1;
-                        }
-                        y1 += 1;
-                    }
-                }else  if(y1 < 280){
-                    temp = x1 - 1;
-                    y1 += 1;
-                    while(y1 > 0){
-                        temp = x1 - 1;
-                        while(temp > x2){
-                            if(this.Board[y1][temp] == 0){
-                                this.Board[y1][temp] = 2;
-                            }
-                            temp -= 1;
-                        }
-                        y1 -= 1;
-                    }
-                }
-            }else if(x1 < x2){
-                if(y1 >= 280){
-                    temp = x1 + 1;
-                    y1 += 1;
-                    while(y1 < 560){
-                        count = 0;
-                        temp = x1 + 1;
-                        while(temp < x2){
-                            if(this.Board[y1][temp] == 0){
-                                this.Board[y1][temp] = 2;
-                            }
-
-                            temp += 1;
-                        }
-                        y1 += 1;
-                    }
-                }else  if(y1 < 280){
-                    temp = x1 + 1;
-                    y1 += 1;
-                    while(y1 > 0){
-                        temp = x1 + 1;
-                        while(temp < x2){
-                            if(this.Board[y1][temp] == 0){
-                                this.Board[y1][temp] = 2;
-                            }
-                            temp += 1;
-                        }
-                        y1 += 1;
-                    }
-                }
-            }
-        }else if(x1 == x2){
-            if(y1 > y2){
-                if(x1 >= 355){
-                    temp = y1 - 1;
-                    x1 += 1;
-                    while(x1 < 710){
-                        temp = y1 - 1;
-                        while(temp > y2){
-                            if(this.Board[temp][x1] == 0){
-                                this.Board[temp][x1] = 2;
-                            }
-                            temp -= 1;
-                        }
-                        x1 += 1;
-                    }
-                }else if(x1 < 355){
-                    temp = y1 - 1;
-                    x1 -= 1;
-                    while(x1 > 0){
-                        temp = y1 - 1;
-                        while(temp > y2){
-                            if(this.Board[temp][x1] == 0){
-                                this.Board[temp][x1] = 2;
-                            }
-                            temp -= 1;
-                        }
-                        x1 -= 1;
-                    }
-                }
-            }else if(y1 < y2){
-                if(x1 >= 355){
-                    temp = y1 + 1;
-                    x1 += 1;
-                    while(x1 < 710){
-                        temp = y1 + 1;
-                        while(temp < y2){
-                            if(this.Board[temp][x1] == 0){
-                                this.Board[temp][x1] = 2;
-                            }
-                            temp += 1;
-                        }
-                        x1 += 1;
-                    }
-                }else if(x1 < 355){
-                    temp = y1 + 1;
-                    x1 -= 1;
-                    while(x1 > 0){
-                        temp = y1 + 1;
-                        while(temp > y2){
-                            if(this.Board[temp][x1] == 0){
-                                this.Board[temp][x1] = 2;
-                            }
-                            temp += 1;
-                        }
-                        x1 -= 1;
-                    }
-                }
-            }
-        }
-    }
-
     public void addToPolyArr(){
-        ArrayList<Integer> finalPoint = findPolygonCorner();
-        if(finalPoint.size() == 4){
-            int[] X = arrayListToIntArray(currentPathLineListX, 2);
-            int[] Y = arrayListToIntArray(currentPathLineListY, 2);
-            Y[Y.length - 2] = finalPoint.get(1);
-            X[X.length - 2] = finalPoint.get(0);
-            X[X.length - 1] = finalPoint.get(2);
-            Y[Y.length - 1] = finalPoint.get(3);
-            Polygon p = new Polygon(X, Y, X.length);
-            polygonList.add(p);
-        }else if(finalPoint.size() == 2) {
-            int[] X = arrayListToIntArray(currentPathLineListX, 1);
-            int[] Y = arrayListToIntArray(currentPathLineListY, 1);
-            Y[Y.length - 1] = finalPoint.get(1);
-            X[X.length - 1] = finalPoint.get(0);
-            Polygon p = new Polygon(X, Y, X.length);
-            polygonList.add(p);
-        }else{
-            int[] X = arrayListToIntArray(currentPathLineListX, 0);
-            int[] Y = arrayListToIntArray(currentPathLineListY, 0);
-            Polygon p = new Polygon(X, Y, X.length);
-            polygonList.add(p);
-        }
+//        ArrayList<Integer> finalPoint = findPolygonCorner();
+//        if(finalPoint.size() == 4){
+//            int[] X = arrayListToIntArray(currentPathLineListX, 2);
+//            int[] Y = arrayListToIntArray(currentPathLineListY, 2);
+//            Y[Y.length - 2] = finalPoint.get(1);
+//            X[X.length - 2] = finalPoint.get(0);
+//            X[X.length - 1] = finalPoint.get(2);
+//            Y[Y.length - 1] = finalPoint.get(3);
+//            Polygon p = new Polygon(X, Y, X.length);
+//            polygonList.add(p);
+//        }else if(finalPoint.size() == 2) {
+//            int[] X = arrayListToIntArray(currentPathLineListX, 1);
+//            int[] Y = arrayListToIntArray(currentPathLineListY, 1);
+//            Y[Y.length - 1] = finalPoint.get(1);
+//            X[X.length - 1] = finalPoint.get(0);
+//            Polygon p = new Polygon(X, Y, X.length);
+//            polygonList.add(p);
+//        }else{
+//            int[] X = arrayListToIntArray(currentPathLineListX, 0);
+//            int[] Y = arrayListToIntArray(currentPathLineListY, 0);
+//            Polygon p = new Polygon(X, Y, X.length);
+//            polygonList.add(p);
+//        }
+        findPolygonCorner();
+        int[] X = arrayListToIntArray(currentPathLineListX);
+        int[] Y = arrayListToIntArray(currentPathLineListY);
+        Polygon p = new Polygon(X, Y, X.length);
+        polygonList.add(p);
+
     }
 
-    public ArrayList<Integer> findPolygonCorner() {
-        int last = currentPathLineListX.size() - 1;
-        int x1 = currentPathLineListX.get(0);
-        int y1 = currentPathLineListY.get(0);
-        int x2 = currentPathLineListX.get(last);
-        int y2 = currentPathLineListY.get(last);
+    public void findPolygonCorner() {
+        int[][] directionsToCheckLeft = new int[][]{{0, 1, -1, 0, 0, -1},
+                {-1, 0, 0, -1, 1, 0}, {0, -1, 1, 0, 0, 1}, {1, 0, 0, 1, -1, 0}};
+        int[][] directionsToCheckRight = new int[][]{{0, -1, -1, 0, 0, 1}, {1, 0, 0, -1, -1, 0}, {0, 1, 1, 0, 0, -1},
+                {-1, 0, 0, 1, 1, 0}};
+        int[] directionsToCount = new int[]{1, 0, -1, 0, -1, 0, 0, -1};
+        ArrayList<Integer> leftX = (ArrayList<Integer>) currentPathLineListX.clone();
+        ArrayList<Integer> leftY = (ArrayList<Integer>) currentPathLineListY.clone();
+
+        ArrayList<Integer> rightX = (ArrayList<Integer>) currentPathLineListX.clone();
+        ArrayList<Integer> rightY = (ArrayList<Integer>) currentPathLineListY.clone();
+
         ArrayList<Integer> r = new ArrayList<>();
-        if (currentPathLineListX.size() == 2) {
-            if(y1 == y2){
-                if(y1 >= 280){
-                    r.add(x2);
-                    r.add(580);
-                    r.add(x1);
-                    r.add(580);
-                }else{
-                    r.add(x2);
-                    r.add(20);
-                    r.add(x1);
-                    r.add(20);
-                }
-            }else if(x1 == x2){
-                if(x1 >= 355){
-                    r.add(730);
-                    r.add(y2);
-                    r.add(730);
-                    r.add(y1);
-                }else{
-                    r.add(20);
-                    r.add(y2);
-                    r.add(20);
-                    r.add(y1);
-                }
-            }
-        } else {
-            if (x1 == x2 || y1 == y2) {
 
-            } else {
-                if (x1 > x2 && y1 > y2) {
-                    r.add(x2);
-                    r.add(y1);
-                } else if (x1 > x2 && y1 < y2) {
-                    r.add(x2);
-                    r.add(y1);
-                } else if (x1 < x2 && y1 > y2) {
-                    r.add(x2);
-                    r.add(y1);
-                } else if (x1 < x2 && y1 < y2) {
-                    r.add(x2);
-                    r.add(y1);
-                }
-
-            }
+        findCorners(endPathDirection, directionsToCheckLeft, leftX, leftY);
+        findCorners(endPathDirection, directionsToCheckRight, rightX, rightY);
+        float left = getAverageLength(leftX, leftY);
+        float right = getAverageLength(rightX, rightY);
+        System.out.println(left);
+        System.out.println(right);
+        if(left <= right){
+            currentPathLineListX = (ArrayList<Integer>) leftX.clone();
+            currentPathLineListY =  (ArrayList<Integer>) leftY.clone();
+        }else{
+            currentPathLineListX =  (ArrayList<Integer>) rightX.clone();
+            currentPathLineListY =  (ArrayList<Integer>) rightY.clone();
         }
-        return r;
+
+
     }
 
-    public int[] arrayListToIntArray(ArrayList<Integer> lst, int extra){
+    private float getAverageLength(ArrayList<Integer> pathX, ArrayList<Integer> pathY){
+        float total = 0;
+        for(int i = 1; i < pathX.size(); i++){
+            total += Math.sqrt(Math.pow(pathX.get(i) - pathX.get(i - 1), 2) +  Math.pow(pathY.get(i) - pathY.get(i - 1), 2));
+        }
+        System.out.println(pathX.size());
+        System.out.println(total);
+        return total / pathX.size();
+    }
 
-        int[] r = new int[lst.size() + extra];
+    private void findCorners(int direction, int[][] directionArr, ArrayList<Integer> pathX, ArrayList<Integer> pathY){
+
+        int[] directions = directionArr[direction - 1];
+        int counter = 0;
+        int oldx = playerX - 20;
+        int oldy = playerY - 20;
+        int x = 0;
+        int y = 0;
+        int lastX = pathX.get(0);
+        int lastY = pathY.get(0);
+        int testCounter = 0;
+//        System.out.println(lastY - playerY);
+//        System.out.println(lastX - playerX);
+        while(oldx + 20 != lastX || oldy + 20 != lastY) {
+           testCounter += 1;
+            directions = directionArr[direction - 1];
+            for (int i = 1; i < 6; i += 2) {
+                //System.out.println(y);
+                x = oldx + directions[i - 1];
+                y = oldy + directions[i];
+                if (this.Board[y][x] == 1) {
+                    if (i != 3 && counter != 0) {
+                        pathX.add(oldx + 20);
+                        pathY.add(oldy + 20);
+                        //System.out.println("test");
+                    }
+                    counter += 1;
+                    break;
+                }
+            }
+            direction = getNewDirection(x, y, oldx, oldy);
+            oldx = x;
+            oldy = y;
+        }
+
+
+    }
+
+    private int getNewDirection(int newx, int newy, int oldx, int oldy){
+        if(newx - oldx == 1 && newy - oldy == 0){
+            return 3;
+        }else if(newx - oldx == -1){
+           return 1;
+        }else if(newy - oldy == 1){
+            return 4;
+        }else {
+            return 2;
+        }
+    }
+
+    private int[] getDirection(int dir){
+        switch (dir){
+            case 1:
+                return new int[]{-1, 0};
+            case 2:
+                return new int[]{0, -1};
+            case 3:
+                return new int[]{1, 0};
+            case 4:
+                return new int[]{0, 1};
+            default:
+                return new int[]{0, 0};
+        }
+    }
+
+
+    public int[] arrayListToIntArray(ArrayList<Integer> lst){
+
+        int[] r = new int[lst.size()];
         int i = 0;
         while(i < lst.size()){
             r[i] = lst.get(i);
@@ -622,7 +439,7 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
-
+        boolean update = false;
         clearPath = false;
         if(!direction.isEmpty()) {
             // int lastDirectionKey = direction.size() - 1;
@@ -720,6 +537,9 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
                         startPathY = lastY + 20;
 //                    System.out.println(lastX);
 ////                    System.out.println(lastY);
+                        if(currentPathLineListX.size() == 0){
+                            startPathDirection = dir;
+                        }
                         currentPathLineListX.add(lastX + 20);
                         currentPathLineListY.add(lastY + 20);
                         if (dir != lastDirection) {
@@ -757,17 +577,18 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
                 startPathY = playerY;
             }
             if(this.Board[trueY][trueX] == 1 && this.currentPathLineListX.size() > 0){
-                System.out.println("the fuck");
+                //System.out.println("the fuck");
                 this.currentPathLineListX.add(trueX + 20);
                 this.currentPathLineListY.add(trueY + 20);
                 startPathX = playerX;
                 startPathY = playerY;
-                System.out.println(this.currentPathLineListX.size());
+                //System.out.println(this.currentPathLineListX.size());
                 clearPath = true;
-                moveOff =false;
-
+                //moveOff =false;
+                update = true;
                 putNewEdgeInBoard(dir, trueX, trueY);
-                fillBoardArea();
+                endPathDirection = dir;
+                //fillBoardArea();
 
                 // System.out.println(Arrays.toString(this.Board[trueY]));
 //                System.out.println(clearPath);
@@ -775,11 +596,36 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
 
             lastDirection = dir;
             repaint();
+
         }
 
 
     }
 
+    private void updateBoard() {
+        //System.out.println(polygonList.size());
+        Point p = new Point();
+
+        for (int row = 20; row <= 580; row++) {
+            for (int col = 20; col <= 730; col++) {
+                p.x = col;
+                p.y = row;
+                if (this.Board[row - 20][col - 20] != 1) {
+                    for(int i = 0; i < polygonList.size(); i++){
+                        if(polygonList.get(i).contains(p)){
+                            this.Board[row - 20][col - 20] = i + 2;
+                        }
+                    }
+//                    for (Polygon poly : polygonList) {
+//                        if (poly.contains(p)) {
+//                            this.Board[row - 20][col - 20] = 2;
+//                        }
+//                    }
+
+                }
+            }
+        }
+    }
 
 
     @Override
@@ -899,7 +745,7 @@ public class Display  extends JFrame implements ActionListener, KeyListener {
         }
     }
 
-    public static void main(String[]args){
+    public static void main(String[]args) throws AWTException {
         //opens the window by creating a new Display class
         Display d = new Display();
 
