@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.util.*;
 
 import com.sun.jdi.VMCannotBeModifiedException;
+import javafx.scene.paint.LinearGradient;
 import org.jgrapht.*;
 import org.jgrapht.alg.cycle.CycleDetector;
 import org.jgrapht.graph.DefaultEdge;
@@ -74,7 +75,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     ArrayList<ArrayList<Integer>> permanentPathLineListX = new ArrayList<>();
     ArrayList<ArrayList<Integer>> permanentPathLineListY = new ArrayList<>();
 
-    ArrayList<Polygon> polygonList = new ArrayList<>();
+    ArrayList<Shape> polygonList = new ArrayList<>();
     int startPathDirection = 0;
     int endPathDirection = 0;
 
@@ -274,19 +275,21 @@ public class Display extends JFrame implements ActionListener, KeyListener {
 
         int[] topX = new int[]{startX,frameWidth - startX};
         int[] topY = new int[]{startY, startY};
-        Polygon top = new Polygon(topX, topY, 2);
+        Line2D top = new Line2D.Double(startX, startY, frameWidth - startX, startY);
 
         int[] leftX = new int[]{startX, startX};
         int[] leftY = new int[]{startY, frameHeight - startY};
-        Polygon left = new Polygon(leftX, leftY, 2);
+        Line2D left = new Line2D.Double(startX, startY, startX, frameHeight - startY);
 
         int[] bottomX = new int[]{startX, frameWidth - startX};
         int[] bottomY = new int[]{frameHeight - startY, frameHeight - startY};
-        Polygon bottom = new Polygon(bottomX, bottomY, 2);
+        Line2D bottom = new Line2D.Double(startX, frameHeight - startY, frameWidth - startX, frameHeight - startY);
 
         int[] rightX = new int[]{frameWidth - startX, frameWidth - startX};
         int[] rightY = new int[]{startY, frameHeight - startY};
-        Polygon right = new Polygon(rightX, rightY, 2);
+        Line2D right = new Line2D.Double(frameWidth - startX, startY, frameWidth - startX, frameHeight - startY);
+
+
 
         polygonList.add(top);
         polygonList.add(bottom);
@@ -734,8 +737,8 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 qixY=qixY-5;
             }
             Rectangle2D testRect = new Rectangle2D.Double(qixX,qixY,20,20);
-            for (Polygon p : polygonList){
-                if (p.contains(testRect)){
+            for (Shape p : polygonList){
+                if (p.intersects(testRect)){
                         qixX=lastcoord1;
                         qixY=lastcoord2;
                 }
