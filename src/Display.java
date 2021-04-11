@@ -79,10 +79,9 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     int startPathDirection = 0;
     int endPathDirection = 0;
 
-
     ArrayList<Line2D> currentPathLines = new ArrayList<>();
     ArrayList<Line2D> setPathLines = new ArrayList<>();
-    Line2D currentLine;
+    Line2D currentLine = new Line2D.Double(0, 0,0, 0);
 
     class GameDrawCanvas extends JPanel {
         //painting method
