@@ -631,6 +631,8 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             }
             if(this.Board[trueY][trueX] == 1 && this.currentPathLineListX.size() > 0){
                 //System.out.println("the fuck");
+                this.currentPathLineListX.add(lastX + 20);
+                this.currentPathLineListY.add(lastY + 20);
                 this.currentPathLineListX.add(trueX + 20);
                 this.currentPathLineListY.add(trueY + 20);
 //                int x1 = currentPathLineListX.get(currentPathLineListX.size() - 2);
@@ -644,6 +646,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 clearPath = true;
                 //moveOff =false;
                 update = true;
+                putNewEdgeInBoard(lastDirection, lastX, lastY);
                 putNewEdgeInBoard(dir, trueX, trueY);
                 endPathDirection = dir;
                 //fillBoardArea();
