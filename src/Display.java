@@ -8,7 +8,7 @@ import java.awt.image.BufferedImage;
 import java.util.*;
 
 import com.sun.jdi.VMCannotBeModifiedException;
-import javafx.scene.paint.LinearGradient;
+
 import org.jgrapht.*;
 import org.jgrapht.alg.cycle.CycleDetector;
 import org.jgrapht.graph.DefaultEdge;
@@ -683,10 +683,25 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             }
 
             lastDirection = dir;
+
         }
+
         moveQix();
+        checkQix();
         repaint();
 
+    }
+    public void checkQix(){
+        Rectangle2D testRect = new Rectangle2D.Double(qixX,qixY,20,20);
+        if (currentLine.intersects(testRect)){
+            System.out.println("LOST");
+        }
+        for (Line2D l: currentPathLines){
+            if (l.intersects(testRect)){
+                System.out.println("LOST");
+                break;
+            }
+        }
     }
     public void moveQix () {
 
@@ -744,6 +759,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 }
             }
     }
+
 
 
     private void updateBoard() {
