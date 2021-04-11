@@ -668,6 +668,8 @@ public class Display extends JFrame implements ActionListener, KeyListener {
         Random chance= new Random();
         Random chance2= new Random();
         int chanceNum= chance.nextInt(101);
+        int lastcoord1=qixX;
+        int lastcoord2=qixY;
         int moveX=0;
         int moveY=0;
         int movedir=0;
@@ -709,23 +711,13 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 qixX=qixX-5;
                 qixY=qixY-5;
             }
-
-        if (trueX < 0) {
-            trueX = 0;
-            qixX = 20;
-
-        } else if (trueX > 710) {
-            trueX = 710;
-            qixX = 730;
-
-        } else if (trueY < 0) {
-            trueY = 0;
-            qixY = 20;
-
-        } else if (trueY > 560) {
-            trueY = 560;
-            qixY = 580;
-        }
+            Rectangle2D testRect = new Rectangle2D.Double(qixX,qixY,20,20);
+            for (Polygon p : polygonList){
+                if (p.contains(testRect)){
+                        qixX=lastcoord1;
+                        qixY=lastcoord2;
+                }
+            }
     }
 
 
