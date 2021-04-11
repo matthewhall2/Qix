@@ -271,6 +271,30 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     }
 
     public Display() throws AWTException {
+
+        int[] topX = new int[]{startX,frameWidth - startX};
+        int[] topY = new int[]{startY, startY};
+        Polygon top = new Polygon(topX, topY, 2);
+
+        int[] leftX = new int[]{startX, startX};
+        int[] leftY = new int[]{startY, frameHeight - startY};
+        Polygon left = new Polygon(leftX, leftY, 2);
+
+        int[] bottomX = new int[]{startX, frameWidth - startX};
+        int[] bottomY = new int[]{frameHeight - startY, frameHeight - startY};
+        Polygon bottom = new Polygon(bottomX, bottomY, 2);
+
+        int[] rightX = new int[]{frameWidth - startX, frameWidth - startX};
+        int[] rightY = new int[]{startY, frameHeight - startY};
+        Polygon right = new Polygon(rightX, rightY, 2);
+
+        polygonList.add(top);
+        polygonList.add(bottom);
+        polygonList.add(left);
+        polygonList.add(right);
+
+
+
         currentPathLines = new ArrayList<>();
         myRobot = new Robot();
         Board = new int[frameHeight - 2 * startY + 1][frameWidth - 2 * startX + 1];
@@ -656,15 +680,13 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             }
 
             lastDirection = dir;
-
-
-
         }
         moveQix();
         repaint();
 
     }
     public void moveQix () {
+
         Random chance= new Random();
         Random chance2= new Random();
         int chanceNum= chance.nextInt(101);
