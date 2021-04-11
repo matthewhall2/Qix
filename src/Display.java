@@ -54,6 +54,9 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     boolean isLeftPressed = false;
     boolean isRightPressed = false;
 
+    int qixX= 355;
+    int qixY= 250;
+
 
 
     ArrayList<Integer> direction = new ArrayList<>(0);
@@ -135,6 +138,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 }
             }
             drawPlayer(g2d);
+            drawQix(g2d,qixX,qixY);
             Toolkit.getDefaultToolkit().sync();
 //            int n = 12;
 //            int[] xpoints = new int[]{50, 70, 70, 170,  170, 190,  190,  170, 170,  70, 70, 50};
@@ -186,6 +190,13 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             g2d.setStroke(new BasicStroke(2));
             g2d.draw(player);
             g2d.setStroke(new BasicStroke(1));
+        }
+        private void drawQix(Graphics2D g2d,double x,double y){
+            g2d.setColor(Color.WHITE);
+            Rectangle2D qix = new Rectangle2D.Double(x,y, 20 ,20);
+            g2d.fill(qix);
+            g2d.draw(qix);
+
         }
 
         private void drawPath(Graphics2D g2d, ArrayList<Integer> X, ArrayList<Integer> Y){
@@ -267,7 +278,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
         canvas = new GameDrawCanvas();
         infoDrawCanvas = new GameInfoDrawCanvas();
         canvas.setPreferredSize(new Dimension(frameWidth, frameHeight));
-        infoDrawCanvas.setPreferredSize(new Dimension(frameWidth, 150));
+        infoDrawCanvas.setPreferredSize(new Dimension(frameWidth, 50));
         // Add both panels to this JFrame
         Container cp = getContentPane();
         cp.setLayout(new BorderLayout());
@@ -642,12 +653,78 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             }
 
             lastDirection = dir;
-            repaint();
+
+
 
         }
-
+        moveQix();
+        repaint();
 
     }
+    public void moveQix () {
+        Random chance= new Random();
+        Random chance2= new Random();
+        int chanceNum= chance.nextInt(101);
+        int moveX=0;
+        int moveY=0;
+        int movedir=0;
+        if (chanceNum<=33){
+            moveX=1;
+        }
+        else if (chanceNum>33 && chanceNum<=66){
+            moveY=1;
+        }
+        else  if (chanceNum>66){
+            moveX=1;
+            moveY=1;
+        }
+        int dirNum= chance2.nextInt(101);
+        if (dirNum<=50){
+            movedir=0;
+        }
+        else {
+            movedir=1;
+        }
+
+            if (moveX==1 && movedir==1){
+                qixX= qixX+5;
+            }
+            else if (moveY==1 && movedir==1) {
+                qixY = qixY + 5;
+            }
+            if (moveX==1 && movedir==0){
+                qixX= qixX-5;
+            }
+            else if (moveY==1 && movedir==0) {
+                qixY = qixY - 5;
+            }
+            if (moveX==1 && moveY==1 && movedir==1){
+                qixX= qixX+5;
+                qixY= qixY+5;
+            }
+            else if (moveX==1&&moveY==1 && movedir==0) {
+                qixX=qixX-5;
+                qixY=qixY-5;
+            }
+
+        if (trueX < 0) {
+            trueX = 0;
+            qixX = 20;
+
+        } else if (trueX > 710) {
+            trueX = 710;
+            qixX = 730;
+
+        } else if (trueY < 0) {
+            trueY = 0;
+            qixY = 20;
+
+        } else if (trueY > 560) {
+            trueY = 560;
+            qixY = 580;
+        }
+    }
+
 
     private void updateBoard() {
         //System.out.println(polygonList.size());
