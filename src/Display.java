@@ -44,6 +44,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     int slowSpeed = 2;
 
     int[][] Board;
+    int[][] boardCopy;
     boolean moveOff = false;
     boolean lastMoveOff = false;
 
@@ -701,6 +702,8 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             startPathY = playerY;
             trueX = playerX - 20;
             trueY = playerY - 20;
+            Board=boardCopy;
+            moveOff=false;
             System.out.println(currentPathLines.size());
         }
         for (Line2D l: currentPathLines){
@@ -718,6 +721,8 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 startPathY = playerY;
                 trueX = playerX - 20;
                 trueY = playerY - 20;
+                Board=boardCopy;
+                moveOff=false;
                 System.out.println(currentPathLines.size());
                 break;
             }
@@ -906,6 +911,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 else {
                     pushX = playerX;
                     pushY =playerY;
+                    boardCopy=copyBoard();
                 }
                 moveOff = true;
 //                startPathY = playerY;
@@ -923,6 +929,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 else {
                     pushX= playerX;
                     pushY= playerY;
+                    boardCopy=copyBoard();
                 }
 //                if(!moveOff) {
 //                    startPathY = playerY;
