@@ -55,6 +55,9 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     int qixX= 355;
     int qixY= 250;
 
+    int pushX=0;
+    int pushY=0;
+
 
 
     ArrayList<Integer> direction = new ArrayList<>(0);
@@ -694,6 +697,8 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             currentPathLineListY.clear();
             startPathX = playerX;
             startPathY = playerY;
+            playerX=pushX;
+            playerY=pushY;
             System.out.println(currentPathLines.size());
         }
         for (Line2D l: currentPathLines){
@@ -705,6 +710,8 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 currentPathLineListY.clear();
                 startPathX = playerX;
                 startPathY = playerY;
+                playerX=pushX;
+                playerY=pushY;
                 System.out.println(currentPathLines.size());
                 break;
             }
@@ -890,6 +897,10 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 if(moveOff){
                     lastMoveOff = true;
                 }
+                else {
+                    pushX = playerX;
+                    pushY =playerY;
+                }
                 moveOff = true;
 //                startPathY = playerY;
 //                startPathX = playerX;
@@ -902,6 +913,10 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 drawSpeed = slowSpeed;
                 if(moveOff){
                     lastMoveOff = true;
+                }
+                else {
+                    pushX= playerX;
+                    pushY= playerY;
                 }
 //                if(!moveOff) {
 //                    startPathY = playerY;
