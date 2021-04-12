@@ -9,7 +9,7 @@ import java.awt.image.BufferedImage;
 import java.util.*;
 
 import com.sun.jdi.VMCannotBeModifiedException;
-
+import org.jgrapht.alg.color.ColorRefinementAlgorithm;
 
 
 public class Display extends JFrame implements ActionListener, KeyListener {
@@ -60,7 +60,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     int pushY=0;
 
     String area = "Total Area Captured";
-    String areCaptured = "";
+    String areCaptured = "0";
     int sparxX = 20;
     int sparxY = 20;
 
@@ -89,6 +89,8 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     ArrayList<Line2D> currentPathLines = new ArrayList<>();
     ArrayList<Line2D> setPathLines = new ArrayList<>();
     Line2D currentLine = new Line2D.Double(0, 0,0, 0);
+    boolean isSlowDraw = true;
+    ArrayList<Color> colours = new ArrayList<>();
 
     class GameDrawCanvas extends JPanel {
         //painting method
@@ -113,7 +115,8 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             //System.out.println(myRobot.getPixelColor(x + playerX, y + playerY));
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON);
-            drawPolygons(g2d, Color.BLUE);
+            drawPolygons(g2d);
+
             g2d.setColor(Color.WHITE);
             drawBackGround(g2d);
             g2d.setColor(Color.WHITE);
@@ -130,7 +133,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 addToPolyArr();
                 //System.out.println(polygonList.size());
                 updateBoard();
-
+                isSlowDraw = true;
                 permanentPathLineListX.add((ArrayList<Integer>) currentPathLineListX.clone());
                 permanentPathLineListY.add((ArrayList<Integer>) currentPathLineListY.clone());
                 setPathLines.addAll((ArrayList<Line2D>)currentPathLines.clone());
@@ -168,16 +171,15 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             }
         }
 
-        private void drawPolygons(Graphics2D g2d, Color color){
+        private void drawPolygons(Graphics2D g2d){
             int i = polygonList.size() - 1;
             //polygonList.get(0);
-            while(i >= 0){
-                g2d.setColor(color);
+
+            while(i >= 4){
+                g2d.setColor(colours.get(i - 4));
                 g2d.fill(polygonList.get(i));
                 g2d.setColor(Color.WHITE);
                 g2d.draw(polygonList.get(i));
-
-
                 i -= 1;
             }
         }
@@ -212,7 +214,6 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             Rectangle2D sparx = new Rectangle2D.Double(xx,yy, 10 ,10);
             g2d.fill(sparx);
             g2d.draw(sparx);
-
         }
         private void drawPath(Graphics2D g2d, ArrayList<Integer> X, ArrayList<Integer> Y){
             g2d.setColor(Color.WHITE);
@@ -256,8 +257,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
             g2d.drawString("QIX", 50, 50);
             g2d.drawString(area, 350, 20);
-            g2d.drawString(areCaptured, 350, 20 + g2d.getFontMetrics().getHeight());
-
+            g2d.drawString(areCaptured + "%", 350, 20 + g2d.getFontMetrics().getHeight());
         }
     }
 
@@ -683,11 +683,17 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 startPathY = playerY;
                 //System.out.println(this.currentPathLineListX.size());
                 clearPath = true;
+                if(isSlowDraw){
+                    colours.add(Color.GREEN);
+                }else{
+                    colours.add(Color.BLUE);
+                }
                 //moveOff =false;
                 update = true;
                 putNewEdgeInBoard(lastDirection, lastX, lastY);
                 putNewEdgeInBoard(dir, trueX, trueY);
                 endPathDirection = dir;
+
                 //fillBoardArea();
 
                 // System.out.println(Arrays.toString(this.Board[trueY]));
@@ -949,6 +955,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 isRightPressed = true;
                 break;
             case KeyEvent.VK_F:
+                isSlowDraw = false;
                 drawSpeed = fastSpeed;
                 if(moveOff){
                     lastMoveOff = true;
