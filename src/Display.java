@@ -59,6 +59,8 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     int pushX=0;
     int pushY=0;
 
+    String area = "Total Area Captured";
+    String areCaptured = "";
 
 
     ArrayList<Integer> direction = new ArrayList<>(0);
@@ -134,6 +136,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 currentPathLineListY.clear();
                 startPathDirection = 0;
                 endPathDirection = 0;
+                areCaptured = Integer.toString(findArea());
                 if(slowOrFast.size() == 0) {
                     moveOff = false;
                 }
@@ -242,6 +245,8 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
 
             g2d.drawString("QIX", 50, 50);
+            g2d.drawString(area, 350, 20);
+            g2d.drawString(areCaptured, 350, 20 + g2d.getFontMetrics().getHeight());
 
         }
     }
@@ -314,10 +319,10 @@ public class Display extends JFrame implements ActionListener, KeyListener {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Timer timer = new Timer(25, this);
         timer.start();
+
         setTitle("Qix");
         pack();           // pack all the components in the JFrame
         setVisible(true); // show it
-
     }
 
     public void putNewEdgeInBoard(int direction, int X, int Y){
@@ -673,6 +678,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 putNewEdgeInBoard(lastDirection, lastX, lastY);
                 putNewEdgeInBoard(dir, trueX, trueY);
                 endPathDirection = dir;
+
                 //fillBoardArea();
 
                 // System.out.println(Arrays.toString(this.Board[trueY]));
@@ -860,6 +866,18 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             }
         }
         return false;
+    }
+
+    public int findArea(){
+        float total = 0;
+        for(int[] row: Board){
+            for(int val: row){
+                if(val != 0){
+                    total += 1;
+                }
+            }
+        }
+        return (int)(100*(total / (710*560)));
     }
 
     @Override
