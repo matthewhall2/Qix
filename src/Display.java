@@ -695,10 +695,10 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             currentPathLines.clear();
             currentPathLineListX.clear();
             currentPathLineListY.clear();
-            startPathX = playerX;
-            startPathY = playerY;
             playerX=pushX;
             playerY=pushY;
+            startPathX = playerX;
+            startPathY = playerY;
             System.out.println(currentPathLines.size());
         }
         for (Line2D l: currentPathLines){
@@ -712,6 +712,8 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 startPathY = playerY;
                 playerX=pushX;
                 playerY=pushY;
+                startPathX = playerX;
+                startPathY = playerY;
                 System.out.println(currentPathLines.size());
                 break;
             }
