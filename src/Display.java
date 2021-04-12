@@ -61,6 +61,10 @@ public class Display extends JFrame implements ActionListener, KeyListener {
 
     String area = "Total Area Captured";
     String areCaptured = "";
+    int sparxX = 20;
+    int sparxY = 20;
+
+    int lives = 3;
 
 
     ArrayList<Integer> direction = new ArrayList<>(0);
@@ -143,6 +147,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             }
             drawPlayer(g2d);
             drawQix(g2d,qixX,qixY);
+            drawSparx(g2d,sparxX,sparxY);
             Toolkit.getDefaultToolkit().sync();
 //            int n = 12;
 //            int[] xpoints = new int[]{50, 70, 70, 170,  170, 190,  190,  170, 170,  70, 70, 50};
@@ -202,7 +207,13 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             g2d.draw(qix);
 
         }
+        private void drawSparx(Graphics2D g2d,double xx,double yy){
+            g2d.setColor(Color.RED);
+            Rectangle2D sparx = new Rectangle2D.Double(xx,yy, 10 ,10);
+            g2d.fill(sparx);
+            g2d.draw(sparx);
 
+        }
         private void drawPath(Graphics2D g2d, ArrayList<Integer> X, ArrayList<Integer> Y){
             g2d.setColor(Color.WHITE);
 //            int i = 1;
@@ -245,8 +256,6 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
 
             g2d.drawString("QIX", 50, 50);
-            g2d.drawString(area, 350, 20);
-            g2d.drawString(areCaptured, 350, 20 + g2d.getFontMetrics().getHeight());
 
         }
     }
@@ -319,10 +328,10 @@ public class Display extends JFrame implements ActionListener, KeyListener {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Timer timer = new Timer(25, this);
         timer.start();
-
         setTitle("Qix");
         pack();           // pack all the components in the JFrame
         setVisible(true); // show it
+
     }
 
     public void putNewEdgeInBoard(int direction, int X, int Y){
@@ -678,7 +687,6 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 putNewEdgeInBoard(lastDirection, lastX, lastY);
                 putNewEdgeInBoard(dir, trueX, trueY);
                 endPathDirection = dir;
-
                 //fillBoardArea();
 
                 // System.out.println(Arrays.toString(this.Board[trueY]));
@@ -691,6 +699,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
 
         moveQix();
         checkQix();
+        checkSparx();
         repaint();
 
     }
@@ -730,9 +739,26 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 Board=boardCopy;
                 moveOff=false;
                 System.out.println(currentPathLines.size());
+                lives -=1;
+                break;
+
+            }
+        }
+    }
+    public void checkSparx(){
+        Rectangle2D testRect = new Rectangle2D.Double(sparxX,sparxY,10,10);
+        if (currentLine.intersects(testRect)){
+            System.out.println("LOST");
+        }
+        for (Line2D l: currentPathLines){
+            if (l.intersects(testRect)){
+                System.out.println("LOST");
                 break;
             }
         }
+    }
+    public void moveSparx () {
+
     }
     public void moveQix () {
 

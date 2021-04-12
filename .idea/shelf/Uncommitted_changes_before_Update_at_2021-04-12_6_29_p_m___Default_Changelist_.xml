@@ -1,0 +1,19 @@
+<changelist name="Uncommitted_changes_before_Update_at_2021-04-12_6_29_p_m__[Default_Changelist]" date="1618266559008" recycled="true" deleted="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2021-04-12_6_29_p_m__[Default_Changelist]/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before Update at 2021-04-12 6:29 p.m. [Default Changelist]" />
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/Qix/Display$GameInfoDrawCanvas.class" />
+    <option name="AFTER_PATH" value="out/production/Qix/Display$GameInfoDrawCanvas.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2021-04-12_6_29_p_m__[Default_Changelist]/Display$GameInfoDrawCanvas.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/Qix/Display.class" />
+    <option name="AFTER_PATH" value="out/production/Qix/Display.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2021-04-12_6_29_p_m__[Default_Changelist]/Display.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/Qix/Display$GameDrawCanvas.class" />
+    <option name="AFTER_PATH" value="out/production/Qix/Display$GameDrawCanvas.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2021-04-12_6_29_p_m__[Default_Changelist]/Display$GameDrawCanvas.class" />
+  </binary>
+</changelist>
