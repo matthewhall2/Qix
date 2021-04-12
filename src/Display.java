@@ -10,11 +10,7 @@ import java.util.*;
 
 import com.sun.jdi.VMCannotBeModifiedException;
 
-import org.jgrapht.*;
-import org.jgrapht.alg.cycle.CycleDetector;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DefaultUndirectedWeightedGraph;
-import org.jgrapht.graph.DefaultWeightedEdge;
+
 
 public class Display extends JFrame implements ActionListener, KeyListener {
 
@@ -211,7 +207,6 @@ public class Display extends JFrame implements ActionListener, KeyListener {
 //                g2d.drawLine(x1, y1, x2, y2);
 //                i += 1;
 //            }
-
             for(Line2D line: currentPathLines){
                 g2d.draw(line);
             }
@@ -318,9 +313,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
         setTitle("Qix");
         pack();           // pack all the components in the JFrame
         setVisible(true); // show it
-        Graph<String, DefaultWeightedEdge> g = new DefaultUndirectedWeightedGraph<String,
-                DefaultWeightedEdge>(DefaultWeightedEdge.class);
-        CycleDetector<String, DefaultEdge> c;
+
     }
 
     public void putNewEdgeInBoard(int direction, int X, int Y){
@@ -697,6 +690,10 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             System.out.println("LOST");
             currentLine= new Line2D.Double(0,0,0,0);
             currentPathLines.clear();
+            currentPathLineListX.clear();
+            currentPathLineListY.clear();
+            startPathX = playerX;
+            startPathY = playerY;
             System.out.println(currentPathLines.size());
         }
         for (Line2D l: currentPathLines){
@@ -704,7 +701,10 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 System.out.println("LOST");
                 currentLine= new Line2D.Double(0,0,0,0);
                 currentPathLines.clear();
-                currentPathLines.clear();
+                currentPathLineListX.clear();
+                currentPathLineListY.clear();
+                startPathX = playerX;
+                startPathY = playerY;
                 System.out.println(currentPathLines.size());
                 break;
             }
