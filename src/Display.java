@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
+import javax.sound.sampled.Line;
 import javax.swing.*;
 import javax.swing.Timer;
 import java.awt.geom.*; // For Ellipse2D, etc.
@@ -694,10 +695,17 @@ public class Display extends JFrame implements ActionListener, KeyListener {
         Rectangle2D testRect = new Rectangle2D.Double(qixX,qixY,20,20);
         if (currentLine.intersects(testRect)){
             System.out.println("LOST");
+            currentLine= new Line2D.Double(0,0,0,0);
+            currentPathLines.clear();
+            System.out.println(currentPathLines.size());
         }
         for (Line2D l: currentPathLines){
             if (l.intersects(testRect)){
                 System.out.println("LOST");
+                currentLine= new Line2D.Double(0,0,0,0);
+                currentPathLines.clear();
+                currentPathLines.clear();
+                System.out.println(currentPathLines.size());
                 break;
             }
         }
