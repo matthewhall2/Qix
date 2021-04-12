@@ -254,8 +254,9 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             g2d.drawLine(0, 140, frameWidth, 140);
             g2d.setColor(Color.MAGENTA);
             g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
-
             g2d.drawString("QIX", 50, 50);
+            g2d.drawString(area, 350, 20);
+            g2d.drawString(areCaptured, 350, 20 + g2d.getFontMetrics().getHeight());
 
         }
     }
