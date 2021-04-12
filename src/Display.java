@@ -699,6 +699,8 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             playerY=pushY;
             startPathX = playerX;
             startPathY = playerY;
+            trueX = playerX - 20;
+            trueY = playerY - 20;
             System.out.println(currentPathLines.size());
         }
         for (Line2D l: currentPathLines){
@@ -714,6 +716,8 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 playerY=pushY;
                 startPathX = playerX;
                 startPathY = playerY;
+                trueX = playerX - 20;
+                trueY = playerY - 20;
                 System.out.println(currentPathLines.size());
                 break;
             }
