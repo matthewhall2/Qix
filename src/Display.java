@@ -258,6 +258,8 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             g2d.drawString("QIX", 50, 50);
             g2d.drawString(area, 350, 20);
             g2d.drawString(areCaptured + "%", 350, 20 + g2d.getFontMetrics().getHeight());
+            g2d.drawString("Lives: ", 650, 50);
+
         }
     }
 
@@ -727,6 +729,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             Board=boardCopy;
             moveOff=false;
             System.out.println(currentPathLines.size());
+            lives -=1;
         }
         for (Line2D l: currentPathLines){
             if (l.intersects(testRect)){
@@ -746,7 +749,6 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 Board=boardCopy;
                 moveOff=false;
                 System.out.println(currentPathLines.size());
-                lives -=1;
                 break;
 
             }
