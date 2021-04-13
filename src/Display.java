@@ -92,6 +92,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     Line2D currentLine = new Line2D.Double(0, 0,0, 0);
     boolean isSlowDraw = true;
     ArrayList<Color> colours = new ArrayList<>();
+    Timer timer;
 
     class GameDrawCanvas extends JPanel {
         //painting method
@@ -116,6 +117,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             //System.out.println(myRobot.getPixelColor(x + playerX, y + playerY));
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON);
+
             drawPolygons(g2d);
 
             g2d.setColor(Color.WHITE);
@@ -148,10 +150,16 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 if(slowOrFast.size() == 0) {
                     moveOff = false;
                 }
+                direction.clear();
             }
             drawPlayer(g2d);
             drawQix(g2d,qixX,qixY);
             drawSparx(g2d,sparxX,sparxY);
+            if(lives == 0){
+                g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+                g2d.setColor(Color.RED);
+                g2d.drawString("PRESS X TO RESTART", 275, 275);
+            }
             Toolkit.getDefaultToolkit().sync();
 //            int n = 12;
 //            int[] xpoints = new int[]{50, 70, 70, 170,  170, 190,  190,  170, 170,  70, 70, 50};
@@ -267,7 +275,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 g2d.setColor(Color.RED);
                 g2d.drawString("GAME OVER", 310, 20);
                 g2d.drawString("Final Score: " + areCaptured + "%", 305, 20 + g2d.getFontMetrics().getHeight());
-
+                timer.stop();
             }
 
         }
@@ -339,7 +347,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
         cp.add(canvas, BorderLayout.CENTER);
         cp.add(infoDrawCanvas, BorderLayout.NORTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        Timer timer = new Timer(25, this);
+        timer = new Timer(25, this);
         timer.start();
         setTitle("Qix");
         pack();           // pack all the components in the JFrame
@@ -537,6 +545,94 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             i += 1;
         }
         return r;
+    }
+
+    public void restart(){
+        playerX = 300;
+        playerY = 580;
+
+        startPathX = playerX;
+        startPathY = playerY;
+
+        playerXSpeed = 0;
+        playerYSpeed = 0;
+
+        trueX = playerX - startX;
+        trueY = playerY - startY;
+
+        drawSpeed = 2;
+        Board = new int[frameHeight - 2 * startY + 1][frameWidth - 2 * startX + 1];
+        initBoardArray(Board);
+        boardCopy = new int[frameHeight - 2 * startY + 1][frameWidth - 2 * startX + 1];
+        initBoardArray(boardCopy);
+        moveOff = false;
+        lastMoveOff = false;
+        state = true;
+
+        isUpPressed = false;
+        isDownPressed = false;
+        isLeftPressed = false;
+        isRightPressed = false;
+
+        qixX= 355;
+        qixY= 250;
+
+        pushX=0;
+        pushY=0;
+
+        area = "Total Area Captured";
+        areCaptured = "0";
+        sparxX = 20;
+        sparxY = 20;
+
+        lives = 3;
+        direction.clear();
+        slowOrFast.clear();
+
+        isFastPressed = false;
+        isSlowPressed = false;
+
+        lastDirection = 0;
+
+        currentPathLineListX.clear();
+        currentPathLineListY.clear();
+        clearPath = false;
+
+        permanentPathLineListX.clear();
+        permanentPathLineListY.clear();
+
+        polygonList.clear();
+        startPathDirection = 0;
+        endPathDirection = 0;
+
+        currentPathLines.clear();
+        setPathLines.clear();
+        currentLine = new Line2D.Double(0, 0,0, 0);
+        isSlowDraw = true;
+        colours.clear();
+        int[] topX = new int[]{startX,frameWidth - startX};
+        int[] topY = new int[]{startY, startY};
+        Line2D top = new Line2D.Double(startX, startY, frameWidth - startX, startY);
+
+        int[] leftX = new int[]{startX, startX};
+        int[] leftY = new int[]{startY, frameHeight - startY};
+        Line2D left = new Line2D.Double(startX, startY, startX, frameHeight - startY);
+
+        int[] bottomX = new int[]{startX, frameWidth - startX};
+        int[] bottomY = new int[]{frameHeight - startY, frameHeight - startY};
+        Line2D bottom = new Line2D.Double(startX, frameHeight - startY, frameWidth - startX, frameHeight - startY);
+
+        int[] rightX = new int[]{frameWidth - startX, frameWidth - startX};
+        int[] rightY = new int[]{startY, frameHeight - startY};
+        Line2D right = new Line2D.Double(frameWidth - startX, startY, frameWidth - startX, frameHeight - startY);
+
+
+
+        polygonList.add(top);
+        polygonList.add(bottom);
+        polygonList.add(left);
+        polygonList.add(right);
+        timer.start();
     }
 
     @Override
@@ -953,8 +1049,9 @@ public class Display extends JFrame implements ActionListener, KeyListener {
 
     @Override
     public void keyPressed(KeyEvent keyEvent) {
-        if(state == true) {
+        if(state) {
             switch (keyEvent.getKeyCode()) {
+
                 case KeyEvent.VK_UP:
                     playerYSpeed = -drawSpeed;
                     playerXSpeed = 0;
@@ -1035,18 +1132,22 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             }
         }
         else{
-            slowOrFast.remove((Integer)fastSpeed);
-            slowOrFast.remove((Integer)slowSpeed);
-            direction.remove((Integer)4);
-            direction.remove((Integer)3);
-            direction.remove((Integer)2);
-            direction.remove((Integer)1);
-            isDownPressed = false;
-            isSlowPressed = false;
-            isUpPressed = false;
-            isRightPressed= false;
-            isLeftPressed= false;
-            isFastPressed= false;
+            if(keyEvent.getKeyCode() == KeyEvent.VK_X){
+                restart();
+                state = true;
+            }
+//            slowOrFast.remove((Integer)fastSpeed);
+//            slowOrFast.remove((Integer)slowSpeed);
+//            direction.remove((Integer)4);
+//            direction.remove((Integer)3);
+//            direction.remove((Integer)2);
+//            direction.remove((Integer)1);
+//            isDownPressed = false;
+//            isSlowPressed = false;
+//            isUpPressed = false;
+//            isRightPressed= false;
+//            isLeftPressed= false;
+//            isFastPressed= false;
 
         }
     }
