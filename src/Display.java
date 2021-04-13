@@ -72,6 +72,9 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     int totalTime = 0;
 
     int wincond = 50;
+    JButton button;
+    JButton button2;
+    JButton button3;
 
 
     ArrayList<Integer> direction = new ArrayList<>(0);
@@ -161,6 +164,9 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 direction.clear();
             }
             drawPlayer(g2d);
+            drawButton(g2d);
+            drawButton2(g2d);
+            drawButton3(g2d);
             drawQix(g2d,qixX,qixY);
             drawSparx(g2d,sparxX,sparxY);
             drawSparc(g2d,spX,spY);
@@ -192,6 +198,30 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 currentPathLines.add(new Line2D.Double(X.get(i - 1), Y.get(i - 1), X.get(i), Y.get(i)));
                 i += 1;
             }
+        }
+        public void drawButton (Graphics2D g2d){
+            button = new JButton("easy");
+            button.setBounds(100,0,75,20);
+
+            button.setBackground(new Color(0,128,0));
+            this.add(button);
+
+        }
+        private void drawButton2 (Graphics2D g2d){
+            button2 = new JButton("medium");
+
+            button2.setBounds(175,0,75,20);
+            button2.setBackground(new Color(255,215,0));
+            this.add(button2);
+
+        }
+        private void drawButton3 (Graphics2D g2d){
+            button3 = new JButton("hard");
+
+            button3.setBounds(250,0,75,20);
+            button3.setBackground(new Color(128,0,0));
+            this.add(button3);
+
         }
 
         private void drawPolygons(Graphics2D g2d){
@@ -354,14 +384,10 @@ public class Display extends JFrame implements ActionListener, KeyListener {
         int[] rightY = new int[]{startY, frameHeight - startY};
         Line2D right = new Line2D.Double(frameWidth - startX, startY, frameWidth - startX, frameHeight - startY);
 
-
-
         polygonList.add(top);
         polygonList.add(bottom);
         polygonList.add(left);
         polygonList.add(right);
-
-
 
         currentPathLines = new ArrayList<>();
         myRobot = new Robot();
@@ -672,6 +698,16 @@ public class Display extends JFrame implements ActionListener, KeyListener {
 
         boolean update = false;
         clearPath = false;
+
+        if(actionEvent.getSource()==button){
+            wincond = 60;
+        }
+        if(actionEvent.getSource()==button2){
+            wincond = 75;
+        }
+        if(actionEvent.getSource()==button3){
+            wincond = 90;
+        }
         if(!direction.isEmpty()) {
             // int lastDirectionKey = direction.size() - 1;
             int dir = direction.get(direction.size() - 1);
