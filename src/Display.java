@@ -8,9 +8,6 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.util.*;
 
-import com.sun.jdi.VMCannotBeModifiedException;
-import org.jgrapht.alg.color.ColorRefinementAlgorithm;
-
 
 public class Display extends JFrame implements ActionListener, KeyListener {
 
@@ -65,6 +62,12 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     int sparxX = 20;
     int sparxY = 20;
 
+
+    int spX = 1;
+    int spY = 1;
+    int velX = 6;
+    int velY = 3;
+
     int lives = 3;
 
 
@@ -93,6 +96,8 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     boolean isSlowDraw = true;
     ArrayList<Color> colours = new ArrayList<>();
     Timer timer;
+    int[] sparxDirections = new int[]{1, 2, 3, 4};
+    int currentSparxDirection = 3;
 
     class GameDrawCanvas extends JPanel {
         //painting method
@@ -155,6 +160,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             drawPlayer(g2d);
             drawQix(g2d,qixX,qixY);
             drawSparx(g2d,sparxX,sparxY);
+            drawSparc(g2d,spX,spY);
             if(lives == 0){
                 g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
                 g2d.setColor(Color.RED);
@@ -223,6 +229,14 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             Rectangle2D sparx = new Rectangle2D.Double(xx,yy, 10 ,10);
             g2d.fill(sparx);
             g2d.draw(sparx);
+        }
+
+        private void drawSparc(Graphics2D g2d,double x,double y){
+            g2d.setColor(Color.YELLOW);
+            Rectangle2D sparc = new Rectangle2D.Double(x,y, 30 ,30);
+            g2d.fill(sparc);
+            g2d.draw(sparc);
+
         }
         private void drawPath(Graphics2D g2d, ArrayList<Integer> X, ArrayList<Integer> Y){
             g2d.setColor(Color.WHITE);
@@ -735,14 +749,14 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                         currentPathLineListX.add(lastX + 20);
                         currentPathLineListY.add(lastY + 20);
                         //if(currentPathLineListX.size() >= 2){
-                           // System.out.println("test");
+                        // System.out.println("test");
 //                            int x1 = currentPathLineListX.get(currentPathLineListX.size() - 2);
 //                            int x2 = currentPathLineListX.get(currentPathLineListX.size() - 1);
 //                            int y1 = currentPathLineListX.get(currentPathLineListY.size() - 2);
 //                            int y2 = currentPathLineListX.get(currentPathLineListY.size() - 1);
 //                            currentPathLines.add(new Line2D.Double(x1, y1, x2, y2));
-                            //System.out.println(currentPathLineListX.size());
-                       // }
+                        //System.out.println(currentPathLineListX.size());
+                        // }
                         if (dir != lastDirection) {
                             putNewEdgeInBoard(lastDirection, lastX, lastY);
 
@@ -816,7 +830,128 @@ public class Display extends JFrame implements ActionListener, KeyListener {
         moveQix();
         checkQix();
         checkSparx();
+        moveSparc();
+        checkSparc();
         repaint();
+
+    }
+
+    public void moveSparc() {
+        int trueSparcX = sparxX - 20;
+        int trueSparcY = sparxY - 20;
+        Random r = new Random();
+        int a = r.nextInt(101);
+        int[] nextDir = new int[]{0, 0};
+        int[] d = checkSurround(trueSparcX, trueSparcY);
+        if(a <= 2){
+
+            if(d[getOppositeDir(currentSparxDirection) - 1] != 0){
+                nextDir = getDirection(getOppositeDir(currentSparxDirection));
+                currentSparxDirection = getOppositeDir(currentSparxDirection);
+            }else{
+                nextDir = getDirection(currentSparxDirection);
+            }
+
+        }else{
+            int i = 0;
+            if(a <= 40){
+                i = 1;
+            }else if(a <= 70){
+                i = 2;
+            }else{
+                i = 3;
+            }
+            while(true){
+                if(d[i] == 1 && i + 1 != getOppositeDir(currentSparxDirection)){
+                    nextDir = getDirection(i + 1);
+                    currentSparxDirection = i + 1;
+                    break;
+                }
+                i += 1;
+                if(i > 3){
+                    i = 0;
+                }
+            }
+
+        }
+        sparxX += nextDir[0];
+        sparxY += nextDir[1];
+    }
+
+    public int getOppositeDir(int dir){
+        switch (dir){
+            case 1:
+                return 3;
+            case 2:
+                return 4;
+            case 3:
+                return 1;
+            case 4:
+                return 2;
+        }
+        return 0;
+    }
+
+
+    private int[] checkSurround(int X, int Y){
+        int[] d = new int[4];
+        if(X - 1 >= 0 && Board[Y][X - 1] == 1) {
+            d[0] = 1;
+        }
+        if(X + 1 <= 710 && Board[Y][X + 1] == 1){
+            d[2] = 1;
+        }
+        if(Y - 1 >= 0 && Board[Y - 1][X] == 1){
+            d[1] = 1;
+        }
+        if(Y + 1 <= 560 && Board[Y + 1][X] == 1){
+            d[3] = 1;
+        }
+        return d;
+    }
+
+    public void checkSparc()
+    {
+        Rectangle2D testRect = new Rectangle2D.Double(spX,spY,20,20);
+        if (currentLine.intersects(testRect)){
+            System.out.println("LOST");
+            currentLine= new Line2D.Double(0,0,0,0);
+            currentPathLines.clear();
+            currentPathLineListX.clear();
+            currentPathLineListY.clear();
+            playerX=pushX;
+            playerY=pushY;
+            startPathX = playerX;
+            startPathY = playerY;
+            trueX = playerX - 20;
+            trueY = playerY - 20;
+            Board=boardCopy;
+            moveOff=false;
+            System.out.println(currentPathLines.size());
+            lives -=1;
+        }
+        for (Line2D l: currentPathLines){
+            if (l.intersects(testRect)){
+                System.out.println("LOST");
+                currentLine= new Line2D.Double(0,0,0,0);
+                currentPathLines.clear();
+                currentPathLineListX.clear();
+                currentPathLineListY.clear();
+                startPathX = playerX;
+                startPathY = playerY;
+                playerX=pushX;
+                playerY=pushY;
+                startPathX = playerX;
+                startPathY = playerY;
+                trueX = playerX - 20;
+                trueY = playerY - 20;
+                Board=boardCopy;
+                moveOff=false;
+                System.out.println(currentPathLines.size());
+                break;
+
+            }
+        }
 
     }
 
@@ -929,33 +1064,33 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             movedir=1;
         }
 
-            if (moveX==1 && movedir==1){
-                qixX= qixX+5;
+        if (moveX==1 && movedir==1){
+            qixX= qixX+5;
+        }
+        else if (moveY==1 && movedir==1) {
+            qixY = qixY + 5;
+        }
+        if (moveX==1 && movedir==0){
+            qixX= qixX-5;
+        }
+        else if (moveY==1 && movedir==0) {
+            qixY = qixY - 5;
+        }
+        if (moveX==1 && moveY==1 && movedir==1){
+            qixX= qixX+5;
+            qixY= qixY+5;
+        }
+        else if (moveX==1&&moveY==1 && movedir==0) {
+            qixX=qixX-5;
+            qixY=qixY-5;
+        }
+        Rectangle2D testRect = new Rectangle2D.Double(qixX,qixY,20,20);
+        for (Shape p : polygonList){
+            if (p.intersects(testRect)){
+                qixX=lastcoord1;
+                qixY=lastcoord2;
             }
-            else if (moveY==1 && movedir==1) {
-                qixY = qixY + 5;
-            }
-            if (moveX==1 && movedir==0){
-                qixX= qixX-5;
-            }
-            else if (moveY==1 && movedir==0) {
-                qixY = qixY - 5;
-            }
-            if (moveX==1 && moveY==1 && movedir==1){
-                qixX= qixX+5;
-                qixY= qixY+5;
-            }
-            else if (moveX==1&&moveY==1 && movedir==0) {
-                qixX=qixX-5;
-                qixY=qixY-5;
-            }
-            Rectangle2D testRect = new Rectangle2D.Double(qixX,qixY,20,20);
-            for (Shape p : polygonList){
-                if (p.intersects(testRect)){
-                        qixX=lastcoord1;
-                        qixY=lastcoord2;
-                }
-            }
+        }
     }
 
 
