@@ -67,8 +67,8 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     
     int spX = 1;
     int spY = 1;
-    int velX = 4;
-    int velY = 2;
+    int velX = 0;
+    int velY = 0;
 
 
     ArrayList<Integer> direction = new ArrayList<>(0);
@@ -729,8 +729,35 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     
     public void moveSparc() 
     
-    {
-       if (spX >= 725 || spX <= 0) 
+    {	
+    	if (spX<725 && spY < 5) 
+    	{
+    		velX = 4;
+    		spX = spX + velX;
+    		velY = 0;
+    	}
+    	else if ( spX >= 725 && spY < 550) 
+    	{
+    		velY = 4; 
+    		spY = spY + velY;
+    		velX = 0;
+    	}
+    	else if (spX > 1 && spY >= 550 ) 
+    	{
+    		velX= -4;
+    		spX = spX + velX;
+    		velY = 0;
+    	}
+    	else if ( spX < 725 && spY > 1)
+    	{
+    		velY= -4;
+    		spY = spY + velY;
+    		velX=0;
+    		
+    	}
+    	
+    	/*	
+    	if (spX >= 725 || spX <= 0) 
        {
     	   velX = velX * -1;
        }
@@ -744,6 +771,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
        }
        spY = spY + velY;
     	repaint();	    
+    */
     }
     
     public void checkQix(){
