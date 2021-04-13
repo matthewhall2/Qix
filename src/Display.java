@@ -90,6 +90,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     ArrayList<ArrayList<Integer>> permanentPathLineListY = new ArrayList<>();
 
     ArrayList<Shape> polygonList = new ArrayList<>();
+
     int startPathDirection = 0;
     int endPathDirection = 0;
 
@@ -763,6 +764,9 @@ public class Display extends JFrame implements ActionListener, KeyListener {
 //                    System.out.println(lastX);
 ////                    System.out.println(lastY);
                         if(currentPathLineListX.size() == 0){
+                            pushX = lastX + 20;
+                            pushY = lastY + 20;
+                            boardCopy = copyBoard();
                             startPathDirection = dir;
                         }
                         currentPathLineListX.add(lastX + 20);
@@ -1260,9 +1264,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                     if (moveOff) {
                         lastMoveOff = true;
                     } else {
-                        pushX = playerX;
-                        pushY = playerY;
-                        boardCopy = copyBoard();
+
                     }
                     moveOff = true;
                     //                startPathY = playerY;
@@ -1277,9 +1279,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                     if (moveOff) {
                         lastMoveOff = true;
                     } else {
-                        pushX = playerX;
-                        pushY = playerY;
-                        boardCopy = copyBoard();
+
                     }
                     //                if(!moveOff) {
                     //                    startPathY = playerY;
