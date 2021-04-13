@@ -550,6 +550,9 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             int speed = 2;
             if(lastSpeedKey != -1){
                 speed = slowOrFast.get(lastSpeedKey);
+                if(speed == 4){
+                    isSlowDraw = false;
+                }
             }
             if(!moveOff){
                 dir = 0;
