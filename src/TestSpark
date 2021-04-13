@@ -715,7 +715,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
      }
     */
      spX = spX+ velX;
-     spY = spY+ velY;
+    //spY = spY+ velY;
      repaint();
     }
     
