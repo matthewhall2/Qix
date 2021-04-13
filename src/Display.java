@@ -260,7 +260,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             g2d.drawString(area, 280, 20);
             g2d.drawString(areCaptured + "%", 350, 20 + g2d.getFontMetrics().getHeight());
             g2d.drawString("Lives: " +lives, 650, 50);
-            if (lives==2){
+            if (lives==0){
                 state = false;
                 super.paintComponent(g);
                 this.setBackground(Color.BLACK);
@@ -498,8 +498,6 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             oldx = x;
             oldy = y;
         }
-
-
     }
 
     private int getNewDirection(int newx, int newy, int oldx, int oldy){
@@ -680,7 +678,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 startPathX = playerX;
                 startPathY = playerY;
             }
-            if(this.Board[trueY][trueX] == 1 && this.currentPathLineListX.size() > 0){
+            if(this.Board[trueY][trueX] == 1 && this.currentPathLineListX.size() > 0 && !checkPathIntersect()){
                 //System.out.println("the fuck");
                 this.currentPathLineListX.add(lastX + 20);
                 this.currentPathLineListY.add(lastY + 20);
@@ -721,6 +719,30 @@ public class Display extends JFrame implements ActionListener, KeyListener {
         checkSparx();
         repaint();
 
+    }
+
+    public boolean checkPathIntersect(){
+        Point2D p = new Point2D.Double(playerX, playerY);
+        for(Line2D line: currentPathLines) {
+            if (line.intersects(playerX, playerY, 1, 1)) {
+                currentLine= new Line2D.Double(0,0,0,0);
+                currentPathLines.clear();
+                currentPathLineListX.clear();
+                currentPathLineListY.clear();
+                playerX=pushX;
+                playerY=pushY;
+                startPathX = playerX;
+                startPathY = playerY;
+                trueX = playerX - 20;
+                trueY = playerY - 20;
+                Board=boardCopy;
+                moveOff=false;
+                System.out.println(currentPathLines.size());
+                lives -=1;
+                return true;
+            }
+        }
+        return false;
     }
     public void checkQix(){
         Rectangle2D testRect = new Rectangle2D.Double(qixX,qixY,20,20);
