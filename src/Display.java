@@ -71,6 +71,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     int lives = 3;
     int totalTime = 0;
 
+    int wincond = 50;
 
 
     ArrayList<Integer> direction = new ArrayList<>(0);
@@ -166,6 +167,11 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             if(lives == 0){
                 g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
                 g2d.setColor(Color.RED);
+                g2d.drawString("PRESS X TO RESTART", 275, 275);
+            }
+            if(findArea() >=wincond){
+                g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+                g2d.setColor(Color.GREEN);
                 g2d.drawString("PRESS X TO RESTART", 275, 275);
             }
             Toolkit.getDefaultToolkit().sync();
@@ -290,6 +296,15 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 this.setBackground(Color.BLACK);
                 g2d.setColor(Color.RED);
                 g2d.drawString("GAME OVER", 310, 20);
+                g2d.drawString("Final Score: " + areCaptured + "%", 305, 20 + g2d.getFontMetrics().getHeight());
+                timer.stop();
+            }
+            if (findArea()>=wincond){
+                state = false;
+                super.paintComponent(g);
+                this.setBackground(Color.BLACK);
+                g2d.setColor(Color.GREEN);
+                g2d.drawString("YOU WIN!", 330, 20);
                 g2d.drawString("Final Score: " + areCaptured + "%", 305, 20 + g2d.getFontMetrics().getHeight());
                 timer.stop();
             }
@@ -831,12 +846,11 @@ public class Display extends JFrame implements ActionListener, KeyListener {
 
         }
 
-            moveQix();
-            checkQix();
-            checkSparx();
-            moveSparc();
-            checkSparc();
-
+        moveQix();
+        checkQix();
+        checkSparx();
+        moveSparc();
+        checkSparc();
         repaint();
 
     }
@@ -1027,15 +1041,25 @@ public class Display extends JFrame implements ActionListener, KeyListener {
         }
     }
     public void checkSparx(){
-        Rectangle2D testRect = new Rectangle2D.Double(sparxX,sparxY,10,10);
-        if (currentLine.intersects(testRect)){
-            System.out.println("LOST");
-        }
-        for (Line2D l: currentPathLines){
-            if (l.intersects(testRect)){
-                System.out.println("LOST");
-                break;
-            }
+        if (sparxX==playerX && sparxY==playerY){
+            lives--;
+            sparxX=20;
+            sparxY=20;
+            currentLine= new Line2D.Double(0,0,0,0);
+            currentPathLines.clear();
+            currentPathLineListX.clear();
+            currentPathLineListY.clear();
+            startPathX = playerX;
+            startPathY = playerY;
+            playerX=pushX;
+            playerY=pushY;
+            startPathX = playerX;
+            startPathY = playerY;
+            trueX = playerX - 20;
+            trueY = playerY - 20;
+            Board=boardCopy;
+            moveOff=false;
+            System.out.println(currentPathLines.size());
         }
     }
     public void moveSparx () {
