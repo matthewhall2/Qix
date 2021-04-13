@@ -63,8 +63,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     int sparxY = 20;
 
 
-    int spX = 1;
-    int spY = 1;
+
     int velX = 6;
     int velY = 3;
 
@@ -164,7 +163,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             drawPlayer(g2d);
             drawQix(g2d,qixX,qixY);
             drawSparx(g2d,sparxX,sparxY);
-            drawSparc(g2d,spX,spY);
+            
             if(lives == 0){
                 g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
                 g2d.setColor(Color.RED);
@@ -852,14 +851,13 @@ public class Display extends JFrame implements ActionListener, KeyListener {
 
         moveQix();
         checkQix();
+        moveSparx();
         checkSparx();
-        moveSparc();
-        checkSparc();
         repaint();
 
     }
 
-    public void moveSparc() {
+    public void moveSparx() {
         int trueSparcX = sparxX - 20;
         int trueSparcY = sparxY - 20;
         Random r = new Random();
@@ -933,50 +931,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
         return d;
     }
 
-    public void checkSparc()
-    {
-        Rectangle2D testRect = new Rectangle2D.Double(spX,spY,20,20);
-        if (currentLine.intersects(testRect)){
-            System.out.println("LOST");
-            currentLine= new Line2D.Double(0,0,0,0);
-            currentPathLines.clear();
-            currentPathLineListX.clear();
-            currentPathLineListY.clear();
-            playerX=pushX;
-            playerY=pushY;
-            startPathX = playerX;
-            startPathY = playerY;
-            trueX = playerX - 20;
-            trueY = playerY - 20;
-            Board=boardCopy;
-            moveOff=false;
-            System.out.println(currentPathLines.size());
-            lives -=1;
-        }
-        for (Line2D l: currentPathLines){
-            if (l.intersects(testRect)){
-                System.out.println("LOST");
-                currentLine= new Line2D.Double(0,0,0,0);
-                currentPathLines.clear();
-                currentPathLineListX.clear();
-                currentPathLineListY.clear();
-                startPathX = playerX;
-                startPathY = playerY;
-                playerX=pushX;
-                playerY=pushY;
-                startPathX = playerX;
-                startPathY = playerY;
-                trueX = playerX - 20;
-                trueY = playerY - 20;
-                Board=boardCopy;
-                moveOff=false;
-                System.out.println(currentPathLines.size());
-                break;
 
-            }
-        }
-
-    }
 
     public boolean checkPathIntersect(){
         Point2D p = new Point2D.Double(playerX, playerY);
@@ -1066,9 +1021,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             System.out.println(currentPathLines.size());
         }
     }
-    public void moveSparx () {
 
-    }
     public void moveQix () {
 
         Random chance= new Random();
