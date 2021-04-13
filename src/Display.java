@@ -69,6 +69,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     int velY = 3;
 
     int lives = 3;
+    int wincond = 50;
 
 
     ArrayList<Integer> direction = new ArrayList<>(0);
@@ -164,6 +165,11 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             if(lives == 0){
                 g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
                 g2d.setColor(Color.RED);
+                g2d.drawString("PRESS X TO RESTART", 275, 275);
+            }
+            if(findArea() >=wincond){
+                g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+                g2d.setColor(Color.GREEN);
                 g2d.drawString("PRESS X TO RESTART", 275, 275);
             }
             Toolkit.getDefaultToolkit().sync();
@@ -288,6 +294,15 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 this.setBackground(Color.BLACK);
                 g2d.setColor(Color.RED);
                 g2d.drawString("GAME OVER", 310, 20);
+                g2d.drawString("Final Score: " + areCaptured + "%", 305, 20 + g2d.getFontMetrics().getHeight());
+                timer.stop();
+            }
+            if (findArea()>=wincond){
+                state = false;
+                super.paintComponent(g);
+                this.setBackground(Color.BLACK);
+                g2d.setColor(Color.GREEN);
+                g2d.drawString("YOU WIN!", 330, 20);
                 g2d.drawString("Final Score: " + areCaptured + "%", 305, 20 + g2d.getFontMetrics().getHeight());
                 timer.stop();
             }
