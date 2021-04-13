@@ -258,7 +258,10 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             g2d.drawString("QIX", 50, 50);
             g2d.drawString(area, 350, 20);
             g2d.drawString(areCaptured + "%", 350, 20 + g2d.getFontMetrics().getHeight());
-            g2d.drawString("Lives: ", 650, 50);
+            g2d.drawString("Lives: " +lives, 650, 50);
+            if (lives==0){
+
+            }
 
         }
     }
