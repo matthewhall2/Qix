@@ -494,7 +494,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
         }
         //System.out.println(pathX.size());
         //System.out.println(total);
-        return total / pathX.size();
+        return total;
     }
 
     private void findCorners(int direction, int[][] directionArr, ArrayList<Integer> pathX, ArrayList<Integer> pathY){
