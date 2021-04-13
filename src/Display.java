@@ -1022,15 +1022,25 @@ public class Display extends JFrame implements ActionListener, KeyListener {
         }
     }
     public void checkSparx(){
-        Rectangle2D testRect = new Rectangle2D.Double(sparxX,sparxY,10,10);
-        if (currentLine.intersects(testRect)){
-            System.out.println("LOST");
-        }
-        for (Line2D l: currentPathLines){
-            if (l.intersects(testRect)){
-                System.out.println("LOST");
-                break;
-            }
+        if (sparxX==playerX && sparxY==playerY){
+            lives--;
+            sparxX=20;
+            sparxY=20;
+            currentLine= new Line2D.Double(0,0,0,0);
+            currentPathLines.clear();
+            currentPathLineListX.clear();
+            currentPathLineListY.clear();
+            startPathX = playerX;
+            startPathY = playerY;
+            playerX=pushX;
+            playerY=pushY;
+            startPathX = playerX;
+            startPathY = playerY;
+            trueX = playerX - 20;
+            trueY = playerY - 20;
+            Board=boardCopy;
+            moveOff=false;
+            System.out.println(currentPathLines.size());
         }
     }
     public void moveSparx () {
