@@ -8,13 +8,12 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.util.*;
 
-import com.sun.jdi.VMCannotBeModifiedException;
-import org.jgrapht.alg.color.ColorRefinementAlgorithm;
-
 
 public class Display extends JFrame implements ActionListener, KeyListener {
 
-    private GameDrawCanvas canvas;
+	Timer timer = new Timer(5,this);
+	
+	private GameDrawCanvas canvas;
     private GameInfoDrawCanvas infoDrawCanvas;
     public final int frameWidth = 750;
     public final int frameHeight = 600;
@@ -65,6 +64,11 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     int sparxY = 20;
 
     int lives = 3;
+    
+    int spX = 1;
+    int spY = 1;
+    int velX = 4;
+    int velY = 2;
 
 
     ArrayList<Integer> direction = new ArrayList<>(0);
@@ -151,6 +155,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             drawPlayer(g2d);
             drawQix(g2d,qixX,qixY);
             drawSparx(g2d,sparxX,sparxY);
+            drawSparc(g2d,spX,spY);
             Toolkit.getDefaultToolkit().sync();
 //            int n = 12;
 //            int[] xpoints = new int[]{50, 70, 70, 170,  170, 190,  190,  170, 170,  70, 70, 50};
@@ -214,6 +219,14 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             Rectangle2D sparx = new Rectangle2D.Double(xx,yy, 10 ,10);
             g2d.fill(sparx);
             g2d.draw(sparx);
+        }
+        
+        private void drawSparc(Graphics2D g2d,double x,double y){
+            g2d.setColor(Color.YELLOW);
+            Rectangle2D sparc = new Rectangle2D.Double(x,y, 30 ,30);
+            g2d.fill(sparc);
+            g2d.draw(sparc);
+
         }
         private void drawPath(Graphics2D g2d, ArrayList<Integer> X, ArrayList<Integer> Y){
             g2d.setColor(Color.WHITE);
@@ -709,9 +722,30 @@ public class Display extends JFrame implements ActionListener, KeyListener {
         moveQix();
         checkQix();
         checkSparx();
+        moveSparc();
         repaint();
 
     }
+    
+    public void moveSparc() 
+    
+    {
+       if (spX >= 725 || spX <= 0) 
+       {
+    	   velX = velX * -1;
+       }
+       spX = spX + velX;
+       
+      // repaint();
+    
+       if (spY >= 530 || spY <= 0) 
+       {
+    	   velY = velY * -1;
+       }
+       spY = spY + velY;
+    	repaint();	    
+    }
+    
     public void checkQix(){
         Rectangle2D testRect = new Rectangle2D.Double(qixX,qixY,20,20);
         if (currentLine.intersects(testRect)){
