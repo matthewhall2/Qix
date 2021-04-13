@@ -47,6 +47,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     int[][] boardCopy;
     boolean moveOff = false;
     boolean lastMoveOff = false;
+    boolean state = true;
 
     boolean isUpPressed = false;
     boolean isDownPressed = false;
@@ -256,10 +257,16 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             g2d.setColor(Color.MAGENTA);
             g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
             g2d.drawString("QIX", 50, 50);
-            g2d.drawString(area, 350, 20);
+            g2d.drawString(area, 280, 20);
             g2d.drawString(areCaptured + "%", 350, 20 + g2d.getFontMetrics().getHeight());
             g2d.drawString("Lives: " +lives, 650, 50);
-            if (lives==0){
+            if (lives==2){
+                state = false;
+                super.paintComponent(g);
+                this.setBackground(Color.BLACK);
+                g2d.setColor(Color.RED);
+                g2d.drawString("GAME OVER", 310, 20);
+                g2d.drawString("Final Score: " + areCaptured + "%", 305, 20 + g2d.getFontMetrics().getHeight());
 
             }
 
@@ -752,6 +759,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
                 Board=boardCopy;
                 moveOff=false;
                 System.out.println(currentPathLines.size());
+                lives-=1;
                 break;
 
             }
@@ -920,84 +928,101 @@ public class Display extends JFrame implements ActionListener, KeyListener {
 
     @Override
     public void keyPressed(KeyEvent keyEvent) {
-        switch(keyEvent.getKeyCode()) {
-            case KeyEvent.VK_UP:
-                playerYSpeed = -drawSpeed;
-                playerXSpeed = 0;
+        if(state == true) {
+            switch (keyEvent.getKeyCode()) {
+                case KeyEvent.VK_UP:
+                    playerYSpeed = -drawSpeed;
+                    playerXSpeed = 0;
 
 
-                if(!isUpPressed && (lastDirection != 4 || canMove(trueX,  trueY, 2))){
-                    direction.add(2);
-                }
-                isUpPressed = true;
+                    if (!isUpPressed && (lastDirection != 4 || canMove(trueX, trueY, 2))) {
+                        direction.add(2);
+                    }
+                    isUpPressed = true;
 
-                break;
-            case KeyEvent.VK_DOWN:
-                playerYSpeed = drawSpeed;
-                playerXSpeed = 0;
+                    break;
+                case KeyEvent.VK_DOWN:
+                    playerYSpeed = drawSpeed;
+                    playerXSpeed = 0;
 
-                if(!isDownPressed && (lastDirection != 2|| canMove(trueX, trueY, 4))){
-                    direction.add(4);
-                }
-                isDownPressed = true;
-                break;
-            case KeyEvent.VK_LEFT:
-                playerXSpeed = -drawSpeed;
-                playerYSpeed = 0;
+                    if (!isDownPressed && (lastDirection != 2 || canMove(trueX, trueY, 4))) {
+                        direction.add(4);
+                    }
+                    isDownPressed = true;
+                    break;
+                case KeyEvent.VK_LEFT:
+                    playerXSpeed = -drawSpeed;
+                    playerYSpeed = 0;
 
-                if(!isLeftPressed && (lastDirection != 3|| canMove(trueX, trueY, 1))){
-                    direction.add(1);
-                }
-                isLeftPressed = true;
-                break;
-            case KeyEvent.VK_RIGHT:
-                playerXSpeed = drawSpeed;
-                playerYSpeed = 0;
+                    if (!isLeftPressed && (lastDirection != 3 || canMove(trueX, trueY, 1))) {
+                        direction.add(1);
+                    }
+                    isLeftPressed = true;
+                    break;
+                case KeyEvent.VK_RIGHT:
+                    playerXSpeed = drawSpeed;
+                    playerYSpeed = 0;
 
-                if(!isRightPressed && (lastDirection != 1|| canMove(trueX, trueY, 3))){
-                    direction.add(3);
-                }
-                isRightPressed = true;
-                break;
-            case KeyEvent.VK_F:
-                isSlowDraw = false;
-                drawSpeed = fastSpeed;
-                if(moveOff){
-                    lastMoveOff = true;
-                }
-                else {
-                    pushX = playerX;
-                    pushY =playerY;
-                    boardCopy=copyBoard();
-                }
-                moveOff = true;
-//                startPathY = playerY;
-//                startPathX = playerX;
-                if(!isFastPressed){
-                    slowOrFast.add(fastSpeed);
-                }
-                isFastPressed = true;
-                break;
-            case KeyEvent.VK_S:
-                drawSpeed = slowSpeed;
-                if(moveOff){
-                    lastMoveOff = true;
-                }
-                else {
-                    pushX= playerX;
-                    pushY= playerY;
-                    boardCopy=copyBoard();
-                }
-//                if(!moveOff) {
-//                    startPathY = playerY;
-//                    startPathX = playerX;
-//                }
-                moveOff = true;
+                    if (!isRightPressed && (lastDirection != 1 || canMove(trueX, trueY, 3))) {
+                        direction.add(3);
+                    }
+                    isRightPressed = true;
+                    break;
+                case KeyEvent.VK_F:
+                    isSlowDraw = false;
+                    drawSpeed = fastSpeed;
+                    if (moveOff) {
+                        lastMoveOff = true;
+                    } else {
+                        pushX = playerX;
+                        pushY = playerY;
+                        boardCopy = copyBoard();
+                    }
+                    moveOff = true;
+                    //                startPathY = playerY;
+                    //                startPathX = playerX;
+                    if (!isFastPressed) {
+                        slowOrFast.add(fastSpeed);
+                    }
+                    isFastPressed = true;
+                    break;
+                case KeyEvent.VK_S:
+                    drawSpeed = slowSpeed;
+                    if (moveOff) {
+                        lastMoveOff = true;
+                    } else {
+                        pushX = playerX;
+                        pushY = playerY;
+                        boardCopy = copyBoard();
+                    }
+                    //                if(!moveOff) {
+                    //                    startPathY = playerY;
+                    //                    startPathX = playerX;
+                    //                }
+                    moveOff = true;
 
-                if(!isSlowPressed){
-                    slowOrFast.add(slowSpeed);
-                }
-                isSlowPressed = true;
+                    if (!isSlowPressed) {
+                        slowOrFast.add(slowSpeed);
+                    }
+                    isSlowPressed = true;
+                default:
+
+            }
+        }
+        else{
+            slowOrFast.remove((Integer)fastSpeed);
+            slowOrFast.remove((Integer)slowSpeed);
+            direction.remove((Integer)4);
+            direction.remove((Integer)3);
+            direction.remove((Integer)2);
+            direction.remove((Integer)1);
+            isDownPressed = false;
+            isSlowPressed = false;
+            isUpPressed = false;
+            isRightPressed= false;
+            isLeftPressed= false;
+            isFastPressed= false;
+
         }
     }
 
