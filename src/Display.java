@@ -69,6 +69,8 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     int velY = 3;
 
     int lives = 3;
+    int totalTime = 0;
+
 
 
     ArrayList<Integer> direction = new ArrayList<>(0);
@@ -651,6 +653,8 @@ public class Display extends JFrame implements ActionListener, KeyListener {
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
+
+
         boolean update = false;
         clearPath = false;
         if(!direction.isEmpty()) {
@@ -827,11 +831,12 @@ public class Display extends JFrame implements ActionListener, KeyListener {
 
         }
 
-        moveQix();
-        checkQix();
-        checkSparx();
-        moveSparc();
-        checkSparc();
+            moveQix();
+            checkQix();
+            checkSparx();
+            moveSparc();
+            checkSparc();
+
         repaint();
 
     }
@@ -840,7 +845,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
         int trueSparcX = sparxX - 20;
         int trueSparcY = sparxY - 20;
         Random r = new Random();
-        int a = r.nextInt(101);
+        int a = r.nextInt(1001);
         int[] nextDir = new int[]{0, 0};
         int[] d = checkSurround(trueSparcX, trueSparcY);
         if(a <= 2){
@@ -854,9 +859,9 @@ public class Display extends JFrame implements ActionListener, KeyListener {
 
         }else{
             int i = 0;
-            if(a <= 40){
+            if(a <= 400){
                 i = 1;
-            }else if(a <= 70){
+            }else if(a <= 700){
                 i = 2;
             }else{
                 i = 3;
@@ -874,8 +879,8 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             }
 
         }
-        sparxX += nextDir[0];
-        sparxY += nextDir[1];
+        sparxX += 2 * nextDir[0];
+        sparxY += 2 * nextDir[1];
     }
 
     public int getOppositeDir(int dir){
@@ -895,16 +900,16 @@ public class Display extends JFrame implements ActionListener, KeyListener {
 
     private int[] checkSurround(int X, int Y){
         int[] d = new int[4];
-        if(X - 1 >= 0 && Board[Y][X - 1] == 1) {
+        if(X - 2 >= 0 && Board[Y][X - 2] == 1) {
             d[0] = 1;
         }
-        if(X + 1 <= 710 && Board[Y][X + 1] == 1){
+        if(X + 2 <= 710 && Board[Y][X + 2] == 1){
             d[2] = 1;
         }
-        if(Y - 1 >= 0 && Board[Y - 1][X] == 1){
+        if(Y - 2 >= 0 && Board[Y - 2][X] == 1){
             d[1] = 1;
         }
-        if(Y + 1 <= 560 && Board[Y + 1][X] == 1){
+        if(Y + 2 <= 560 && Board[Y + 2][X] == 1){
             d[3] = 1;
         }
         return d;
