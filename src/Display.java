@@ -32,6 +32,9 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     int playerXSpeed = 0;
     int playerYSpeed = 0;
 
+    int sparxX2 = 710;
+    int sparxY2 = 20;
+
     int trueX = playerX - startX;
     int trueY = playerY - startY;
 
@@ -101,6 +104,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
     Timer timer;
     int[] sparxDirections = new int[]{1, 2, 3, 4};
     int currentSparxDirection = 3;
+    int currentSparxDirection2 = 1;
 
     class GameDrawCanvas extends JPanel {
         //painting method
@@ -162,8 +166,8 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             }
             drawPlayer(g2d);
             drawQix(g2d,qixX,qixY);
-            drawSparx(g2d,sparxX,sparxY);
-            
+            drawSparx(g2d);
+
             if(lives == 0){
                 g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
                 g2d.setColor(Color.RED);
@@ -232,11 +236,13 @@ public class Display extends JFrame implements ActionListener, KeyListener {
             g2d.draw(qix);
 
         }
-        private void drawSparx(Graphics2D g2d,double xx,double yy){
+        private void drawSparx(Graphics2D g2d){
             g2d.setColor(Color.RED);
-            Rectangle2D sparx = new Rectangle2D.Double(xx,yy, 10 ,10);
+            Rectangle2D sparx = new Rectangle2D.Double(sparxX, sparxY, 10 ,10);
+            Rectangle2D sparx2 = new Rectangle2D.Double(sparxX2, sparxY2, 10, 10);
             g2d.fill(sparx);
             g2d.draw(sparx);
+            g2d.fill(sparx2);
         }
 
         private void drawSparc(Graphics2D g2d,double x,double y){
@@ -616,6 +622,9 @@ public class Display extends JFrame implements ActionListener, KeyListener {
         sparxX = 20;
         sparxY = 20;
 
+        sparxX2 = 710;
+        sparxY2 = 20;
+
         lives = 3;
         direction.clear();
         slowOrFast.clear();
@@ -641,6 +650,8 @@ public class Display extends JFrame implements ActionListener, KeyListener {
         currentLine = new Line2D.Double(0, 0,0, 0);
         isSlowDraw = true;
         colours.clear();
+        currentSparxDirection = 3;
+        currentSparxDirection2 = 1;
         int[] topX = new int[]{startX,frameWidth - startX};
         int[] topY = new int[]{startY, startY};
         Line2D top = new Line2D.Double(startX, startY, frameWidth - startX, startY);
@@ -851,15 +862,16 @@ public class Display extends JFrame implements ActionListener, KeyListener {
 
         moveQix();
         checkQix();
-        moveSparx();
+        moveSparx(sparxX, sparxY);
+        moveSparx2(sparxX2, sparxY2);
         checkSparx();
         repaint();
 
     }
 
-    public void moveSparx() {
-        int trueSparcX = sparxX - 20;
-        int trueSparcY = sparxY - 20;
+    public void moveSparx(int X, int Y) {
+        int trueSparcX = X - 20;
+        int trueSparcY = Y - 20;
         Random r = new Random();
         int a = r.nextInt(1001);
         int[] nextDir = new int[]{0, 0};
@@ -897,6 +909,48 @@ public class Display extends JFrame implements ActionListener, KeyListener {
         }
         sparxX += 2 * nextDir[0];
         sparxY += 2 * nextDir[1];
+    }
+
+    public void moveSparx2(int X, int Y) {
+        int trueSparcX = X - 20;
+        int trueSparcY = Y - 20;
+        Random r = new Random();
+        int a = r.nextInt(1001);
+        int[] nextDir = new int[]{0, 0};
+        int[] d = checkSurround(trueSparcX, trueSparcY);
+        if(a <= 2){
+
+            if(d[getOppositeDir(currentSparxDirection2) - 1] != 0){
+                nextDir = getDirection(getOppositeDir(currentSparxDirection2));
+                currentSparxDirection2 = getOppositeDir(currentSparxDirection2);
+            }else{
+                nextDir = getDirection(currentSparxDirection2);
+            }
+
+        }else{
+            int i = 0;
+            if(a <= 400){
+                i = 1;
+            }else if(a <= 700){
+                i = 2;
+            }else{
+                i = 3;
+            }
+            while(true){
+                if(d[i] == 1 && i + 1 != getOppositeDir(currentSparxDirection2)){
+                    nextDir = getDirection(i + 1);
+                    currentSparxDirection2 = i + 1;
+                    break;
+                }
+                i += 1;
+                if(i > 3){
+                    i = 0;
+                }
+            }
+
+        }
+        sparxX2 += 2 * nextDir[0];
+        sparxY2 += 2 * nextDir[1];
     }
 
     public int getOppositeDir(int dir){
@@ -1000,7 +1054,7 @@ public class Display extends JFrame implements ActionListener, KeyListener {
         }
     }
     public void checkSparx(){
-        if (sparxX==playerX && sparxY==playerY){
+        if ((sparxX==playerX && sparxY==playerY) || (sparxX2 == playerX && sparxY2 == playerY)){
             lives--;
             sparxX=20;
             sparxY=20;
